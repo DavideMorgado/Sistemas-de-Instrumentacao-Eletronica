@@ -8,10 +8,14 @@
 #include <sys/attribs.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../CKCommon/UART/uart.h" 
+#include "uart.h" 
 
 #define SYSCLK  80000000L // System clock frequency, in Hz
 #define PBCLOCK 40000000L // Peripheral Bus Clock frequency, in Hz
+
+#define Prescaler           7                             
+#define Prescaler_val       256    // biggest value is chosen to obtain smaller frequencies   
+#define Freq_Base           15
 
 void init(void)
 {
@@ -25,20 +29,38 @@ void init(void)
 
 }
 
-void initTimer(){
-      // Set timer
-    T2CONbits.ON = 0;    // Stop timer
-    IFS0bits.T2IF=0;     // Reset interrupt flag
-    IPC2bits.T2IP=5;     //set interrupt priority (1..7) *** Make sure it matches iplx in isr declaration ***
-    IEC0bits.T2IE = 0;   // Disable T2 interrupts -> 0 corresponds polling
-    // Timer period configuration
-    T2CONbits.TCKPS = 7; //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
-    T2CONbits.T32 = 0;   // 16 bit timer operation
-    PR2=0xFFFF;          // Period set to approx 0.42 secs (40MHz/256 = 156kHz; 1/156k*65000 ~ 0.41)
-    TMR2=0;
-      
-    T2CONbits.TON=1;     // Start the timer
+void initTimer(int Timer, int freq){
+    if (Timer == 2){ // Set timer
+        T2CONbits.ON = 0;    // Stop timer
+        IFS0bits.T2IF=0;     // Reset interrupt flag
+        IPC2bits.T2IP=5;     //set interrupt priority (1..7) *** Make sure it matches iplx in isr declaration ***
+        IEC0bits.T2IE = 0;   // Disable T2 interrupts -> 0 corresponds polling
+        // Timer period configuration
+        T2CONbits.TCKPS = 7; //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
+        T2CONbits.T32 = 0;   // 16 bit timer operation
+        TMR2 = 0;
+        T2CONbits.TCKPS = Prescaler;    
+        PR2 = PBCLOCK/(Prescaler_val*freq) - 1;      // defines timer frequency equal to Timer2_freq                                  
+        T2CONbits.TON = 1;      
 
+        T2CONbits.TON=1;     // Start the timer
+    }else if(Timer == 3){
+            // Set timer
+        T3CONbits.ON = 0;    // Stop timer
+        IFS0bits.T3IF=0;     // Reset interrupt flag
+        IPC3bits.T3IP=5;     //set interrupt priority (1..7) *** Make sure it matches iplx in isr declaration ***
+        IEC0bits.T3IE = 0;   // Disable T2 interrupts -> 0 corresponds polling
+        // Timer period configuration
+        T3CONbits.TCKPS = 7; //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
+        //T3CONbits.T32 = 0;   // 16 bit timer operation
+        TMR3 = 0;
+        T3CONbits.TCKPS = Prescaler;    
+        PR3 = PBCLOCK/(Prescaler_val*freq) - 1;      // defines timer frequency equal to Timer2_freq                                  
+        T3CONbits.TON = 1;      
+
+        T2CONbits.TON=1;     // Start the timer
+    
+    }
 }
 
 void initADC(){
@@ -66,40 +88,19 @@ void initADC(){
  */
 int main(int argc, char** argv) {
     init();
-     
-     // Variable declarations;
-    float res; // Sampled volatge
-
-    // Init UART and redirect tdin/stdot/stderr to UART
-    if(UartInit(PBCLOCK, 115200) != UART_SUCCESS) {
-        PORTAbits.RA3 = 1; // If Led active error initializing UART
-        while(1);
-    }
-    __XC_UART = 1; /* Redirect stdin/stdout/stderr to UART1*/
     
-    // Disable JTAG interface as it uses a few ADC ports
-    DDPCONbits.JTAGEN = 0;
-
-    // Loop
-    while (1){
-	  while(IFS0bits.T2IF == 0);      //Preso até ter a flag a 1              <-
-               IFS0bits.T2IF = 0;          //Baixar a bandeira do timer            <-       
-          PORTAbits.RA3 = ! PORTAbits.RA3; 
-
-	 // Get one sample
-        IFS1bits.AD1IF = 0; // Reset interrupt flag
-        AD1CON1bits.ASAM = 1; // Start conversion
-        while (IFS1bits.AD1IF == 0); // Wait fo EOC
-
-        // Convert to 0..3.3V 
-        res = (ADC1BUF0 * 3.3) / 1023;
-
-        // Output result
-        printf("Voltage: %f\n\r",res);
-        //printf("Temp:%f",(res-2.7315)/.01); /   
-
+    initTimer(2, Freq_Base);
+      
+    while(1){
+        while(IFS0bits.T2IF == 0);      //Preso até ter a flag a 1              <-
+            IFS0bits.T2IF = 0;          //Baixar a bandeira do timer            <-     
+        PORTAbits.RA3 = ! PORTAbits.RA3;
+        PORTCbits.RC1 = ! PORTCbits.RC1;
+        
+        
+    
+       
     }
-     
     return (EXIT_SUCCESS);
 }
 
