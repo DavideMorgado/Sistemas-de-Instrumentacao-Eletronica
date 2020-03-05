@@ -15,7 +15,7 @@
 
 #define Prescaler           7                             
 #define Prescaler_val       256    // biggest value is chosen to obtain smaller frequencies   
-#define Freq_Base           15
+#define Freq_Base           10
 
 void init(void)
 {
@@ -25,7 +25,7 @@ void init(void)
   
 	/*define initial values for RA3 and RC1*/
     PORTAbits.RA3 = 0;
-    PORTCbits.RC1 = 0;
+    PORTCbits.RC1 = 1;
 
 }
 
@@ -88,17 +88,34 @@ void initADC(){
  */
 int main(int argc, char** argv) {
     init();
+    // Variable declarations;
+    float res; // Sampled volatge
+    //initTimer(2, Freq_Base);
     
-    initTimer(2, Freq_Base);
-      
+       // Init UART and redirect tdin/stdot/stderr to UART
+  
+    __XC_UART = 1; /* Redirect stdin/stdout/stderr to UART1*/
+    
+    // Disable JTAG interface as it uses a few ADC ports
+    DDPCONbits.JTAGEN = 0;
+    
+    initADC();
+    
+        // Welcome message
+    printf("Prints voltage at AN0 (Pin 54 of ChipKIT)\n\r");
+
     while(1){
-        while(IFS0bits.T2IF == 0);      //Preso até ter a flag a 1              <-
-            IFS0bits.T2IF = 0;          //Baixar a bandeira do timer            <-     
-        PORTAbits.RA3 = ! PORTAbits.RA3;
-        PORTCbits.RC1 = ! PORTCbits.RC1;
-        
-        
-    
+      // Get one sample
+        IFS1bits.AD1IF = 0; // Reset interrupt flag
+        AD1CON1bits.ASAM = 1; // Start conversion
+        while (IFS1bits.AD1IF == 0); // Wait fo EOC
+
+        // Convert to 0..3.3V 
+        res = (ADC1BUF0 * 3.3) / 1023;
+
+        // Output result
+        printf("Voltage: %f\n\r",res);
+        //printf("Temp:%f",(res-2.7315)/.01); // For a LM335 directly connected
        
     }
     return (EXIT_SUCCESS);
