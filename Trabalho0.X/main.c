@@ -15,11 +15,11 @@
 
 #define Prescaler           7                             
 #define Prescaler_val       256    // biggest value is chosen to obtain smaller frequencies   
-#define timer_freq          200
-#define TPS_256 7                   // TCKPS code for 256 pre-scaler
-#define resolution          256    
-void init(void)
-{
+#define timer_freq          250
+#define TPS_256             7      // TCKPS code for 256 pre-scaler    
+#define freq_PWM            2000
+
+void init_Ports(void){
 	/* Configure RA3 and RC1 (led 4 and led 5) as Output */
     TRISAbits.TRISA3 = 0;
     TRISCbits.TRISC1 = 0;
@@ -33,32 +33,45 @@ void init(void)
     PORTDbits.RD0 = 1;
 }
 
-
-void initTimer(int freq){
-        T2CONbits.ON = 0;    // Stop timer
-        IFS0bits.T2IF=0;     // Reset interrupt flag
-        IPC2bits.T2IP=5;     //set interrupt priority (1..7) *** Make sure it matches iplx in isr declaration ***
-        IEC0bits.T2IE = 0;   // Disable T2 interrupts -> 0 corresponds polling
-        // Timer period configuration
-        T2CONbits.TCKPS = TPS_256; //Select pre-scaler
-                                   //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
-        T2CONbits.T32 = 0;   // 16 bit timer operation
-        TMR2 = 0;
-        T2CONbits.TCKPS = Prescaler;    
-        PR2 = PBCLOCK/(Prescaler_val*freq) - 1;      // defines timer frequency equal to Timer2_freq                                  
-        T2CONbits.TON=1;     // Start the timer
+void config_Timer2(int freq){
+    T2CONbits.ON = 0;                   //Stop timer
+    T2CONbits.TGATE = 0;                
+    T2CONbits.TCS = 0;                
+    IFS0bits.T2IF = 0;                  //Reset interrupt flag
+    IEC0bits.T2IE = 0;                  //Enable T2 interrupts, 0 -> polling
+    // Timer period configuration
+    T2CONbits.TCKPS = TPS_256;          //Select pre-scaler
+                                        //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
+    T2CONbits.T32 = 0;                  // 16 bit timer operation      
+    TMR2 = 0;
+    T2CONbits.TCKPS = Prescaler;    
+    PR2 = PBCLOCK/(Prescaler_val*freq) - 1;      // defines timer frequency equal to Timer2_freq                                  
+    T2CONbits.TON = 1;                  // Start the timer
 }
 
-void initADC(){
-    // Init UART and redirect tdin/stdot/stderr to UART
+void config_Timer3(int freq){
+    T3CONbits.ON = 0;                   //Stop timer              
+    IFS0bits.T3IF = 0;                  //Reset interrupt flag
+    // Timer period configuration
+    T3CONbits.TCKPS = 1;                //Select pre-scaler
+                                        //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
+   //T3CONbits.T32 = 0;                 // 16 bit timer operation      
+    TMR3 = 0;
+    PR3 = PBCLOCK/(1*freq) - 1;         // defines timer frequency equal to Timer2_freq                                   
+}
+
+void verify_UART(void){
+// Init UART and redirect tdin/stdot/stderr to UART
     if(UartInit(PBCLOCK, 115200) != UART_SUCCESS) {
         PORTAbits.RA3 = 1; // If Led active error initializing UART
         while(1);
     }
     __XC_UART = 1; /* Redirect stdin/stdout/stderr to UART1*/ 
     // Disable JTAG interface as it uses a few ADC ports
-    DDPCONbits.JTAGEN = 0;
-    
+    DDPCONbits.JTAGEN = 0;   
+}
+
+void config_ADC(void){
     // Initialize ADC module
     // Polling mode, AN0 as input
     // Generic part
@@ -77,53 +90,59 @@ void initADC(){
     AD1CON1bits.ON = 1;          // Enable A/D module (This must be the ***last instruction of configuration phase***)
 }
 
-void init_OC (void){
-   // Set OC1 - chipKIT Pin 3 
-    OC1CONbits.OCM = 6;          // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)
-    OC1CONbits.OCTSEL = 0;       // Timer 2 is clock source of OCM
-    OC1RS=0;                     // Compute OC1xRS value
-    OC1CONbits.ON=1;             // Enable OC1
-
-    // Start PWM generation
-    T2CONbits.TON=1; // Start the timer
-    
+void start_ADC(void){
+    // Get one sample
+    IFS1bits.AD1IF = 0;             // Reset interrupt flag
+    AD1CON1bits.ASAM = 1;           // Start conversion
+    while (IFS1bits.AD1IF == 0);    // Wait fo EOC}
 }
-void update_duty(int duty_cycle){
-    int fin = timer_freq*10^resolution;         //guião 7 - ac2: Resolução = log2(TPWM / TIN) = log2(fIN / fOUT)
-    //OC1RS = fin / timer_freq;  // Update DC
-    OC1RS = ((PR2 + 1) * duty_cycle)/100;
-    //resolution = log2(timer_freq);
+
+float calc_ADC(float res){
+    //Sampled voltage  - ADC
+    // Convert to 0..3.3V 
+    res = (ADC1BUF0 * 33) / 1023;
+    // Output result
+    printf("Voltage: %f \n\r",res);
+    //printf("Temp:%f \n",(res-2.7315)/.01); // For a LM335 directly connected
+    return res;
+}
+
+void config_PWM(void){
+   // Set OC3 - chipKIT Pin 6 
+    OC3CONbits.OCM = 6;          // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)
+    OC3CONbits.OCTSEL = 1;       // Timer 3 is clock source of OCM - 1 - select timer 3 / 0 - select timer 2
+   // OC3RS = 0;
+    OC3CONbits.ON = 1;           // Enable OC3
+}
+
+void start_PWM(void){
+     // Start PWM generation
+    T3CONbits.TON = 1; // Start the timer
+}
+
+void update_pwm(int steps){
+    OC3RS = (PBCLOCK/1) * steps / (freq_PWM * 100);     // 100 because we need convert 0 ... 100
 }
 
 int main(int argc, char** argv) {
-    init();
-    initTimer(timer_freq);
+    init_Ports();
+    config_Timer2(timer_freq);
+    config_Timer3(freq_PWM);
+    verify_UART(); 
+    config_ADC();
+    config_PWM();
     
     // Variable declarations;
-    float res;                      // Sampled volatge  - ADC
-    int intensity = 0, i=0;         // - PWM
-  
-    initADC();
-    init_OC();
-   // Welcome message
-    printf("Prints voltage at AN0 (Pin 54 of ChipKIT)\n\n\r");
-
+    int steps; 
+    int i = 0;         // - PWM
+    float res;
+    
+    start_PWM();
+    
     while(1){
-      // Get one sample
-        IFS1bits.AD1IF = 0;          // Reset interrupt flag
-        AD1CON1bits.ASAM = 1;        // Start conversion
-        while (IFS1bits.AD1IF == 0); // Wait fo EOC
-            
-        // Convert to 0..3.3V 
-        res = (ADC1BUF0 * 3.3) / 1023;
-        // Output result
-        printf("Voltage: %f \n\r",res);
-        //printf("Temp:%f \n",(res-2.7315)/.01); // For a LM335 directly connected
-        
-        update_duty(res*10);
-        
+        start_ADC();
+        steps = calc_ADC(res);
+        update_pwm(steps);
     }
     return (EXIT_SUCCESS);
 }
-
-
