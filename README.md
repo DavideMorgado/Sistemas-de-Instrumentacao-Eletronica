@@ -1,1 +1,2 @@
-# Sistemas-de-Instrumenta-o-Eletr-nica
+# Sistemas-de-Instrumenta-o-Eletronica
+Exercicios das Aulas de SIE
