@@ -1,7 +1,8 @@
 /*
- *  Trabalho 0   
+ * Trabalho 0  
+ *   - Davide Morgado    84950
+ *   - Guilherme Maniezo 84907
  */
-
 
 #include <xc.h>
 #include <sys/attribs.h>
@@ -14,7 +15,7 @@
 #define PBCLOCK 40000000L // Peripheral Bus Clock frequency, in Hz
 
 #define Prescaler           7                             
-#define Prescaler_val       256    // biggest value is chosen to obtain smaller frequencies   
+#define Presc_val           256    // biggest value is chosen to obtain smaller frequencies   
 #define timer_freq          250
 #define TPS_256             7      // TCKPS code for 256 pre-scaler    
 #define freq_PWM            2000
@@ -45,7 +46,7 @@ void config_Timer2(int freq){
     T2CONbits.T32 = 0;                  // 16 bit timer operation      
     TMR2 = 0;
     T2CONbits.TCKPS = Prescaler;    
-    PR2 = PBCLOCK/(Prescaler_val*freq) - 1;      // defines timer frequency equal to Timer2_freq                                  
+    PR2 = PBCLOCK/(Presc_val*freq) - 1;   // defines timer frequency equal to Timer2_freq                                  
     T2CONbits.TON = 1;                  // Start the timer
 }
 
@@ -54,14 +55,13 @@ void config_Timer3(int freq){
     IFS0bits.T3IF = 0;                  //Reset interrupt flag
     // Timer period configuration
     T3CONbits.TCKPS = 1;                //Select pre-scaler
-                                        //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
-   //T3CONbits.T32 = 0;                 // 16 bit timer operation      
+    //T3CONbits.T32 = 0;                // 16 bit timer operation      
     TMR3 = 0;
-    PR3 = PBCLOCK/(1*freq) - 1;         // defines timer frequency equal to Timer2_freq                                   
+    PR3 = PBCLOCK/(1*freq) - 1;         // defines timer frequency with prescalet with value 1                             
 }
 
 void verify_UART(void){
-// Init UART and redirect tdin/stdot/stderr to UART
+    // Init UART and redirect tdin/stdot/stderr to UART
     if(UartInit(PBCLOCK, 115200) != UART_SUCCESS) {
         PORTAbits.RA3 = 1; // If Led active error initializing UART
         while(1);
@@ -90,23 +90,6 @@ void config_ADC(void){
     AD1CON1bits.ON = 1;          // Enable A/D module (This must be the ***last instruction of configuration phase***)
 }
 
-void start_ADC(void){
-    // Get one sample
-    IFS1bits.AD1IF = 0;             // Reset interrupt flag
-    AD1CON1bits.ASAM = 1;           // Start conversion
-    while (IFS1bits.AD1IF == 0);    // Wait fo EOC}
-}
-
-float calc_ADC(float res){
-    //Sampled voltage  - ADC
-    // Convert to 0..3.3V 
-    res = (ADC1BUF0 * 33) / 1023;
-    // Output result
-    printf("Voltage: %f \n\r",res);
-    //printf("Temp:%f \n",(res-2.7315)/.01); // For a LM335 directly connected
-    return res;
-}
-
 void config_PWM(void){
    // Set OC3 - chipKIT Pin 6 
     OC3CONbits.OCM = 6;          // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)
@@ -116,15 +99,49 @@ void config_PWM(void){
 }
 
 void start_PWM(void){
-     // Start PWM generation
+    // Start PWM generation
     T3CONbits.TON = 1; // Start the timer
 }
 
-void update_pwm(int steps){
-    OC3RS = (PBCLOCK/1) * steps / (freq_PWM * 100);     // 100 because we need convert 0 ... 100
+void start_ADC(void){
+    // Get one sample
+    IFS1bits.AD1IF = 0;             // Reset interrupt flag
+    AD1CON1bits.ASAM = 1;           // Start conversion
+    while (IFS1bits.AD1IF == 0);    // Wait fo EOC
+}
+
+float ADC_OUT(float res){
+    //Sampled voltage  - ADC
+    // Convert to 0..3.3V 
+    res = (ADC1BUF0 * 3.3) / 1023;
+    // Output result
+    printf("Voltage: %f \n\r",res);
+    //printf("Temp:%f \n",(res-2.7315)/.01); // For a LM335 directly connected
+    return res;
+}
+
+void set_PWM(float PWM_VAL){
+    int i;
+    int mean = 0;
+    int elements = 10;
+    //create a filter digital
+    for(i=0;i<elements;i++){
+        mean = mean+ ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100 because we need convert 0 ... 100
+    }
+    mean = mean /elements;
+    OC3RS = mean;
+}
+
+void test_pwm(void){
+    int i,j;
+    for ( i = 0; i<256;i++){
+        update_pwm(i);                          // increses until 256 steps
+        for( j=0;j<10000;j++);                // delay
+    }
 }
 
 int main(int argc, char** argv) {
+    //iniciate the functions 
     init_Ports();
     config_Timer2(timer_freq);
     config_Timer3(freq_PWM);
@@ -133,16 +150,21 @@ int main(int argc, char** argv) {
     config_PWM();
     
     // Variable declarations;
-    int steps; 
+    float steps; 
     int i = 0;         // - PWM
     float res;
+    int j;
     
-    start_PWM();
-    
+    start_PWM();        // start function start PWM
+
     while(1){
         start_ADC();
-        steps = calc_ADC(res);
-        update_pwm(steps);
+        PWM_Val = ADC_OUT(res);
+        set_PWM(PWM_Val);
+        for( j=0;j<10000;j++);                // delay
+        
+        //if we try test pwm with pwm in oscilloscope decomment test_pwm()
+        //test_pwm();
     }
     return (EXIT_SUCCESS);
 }
