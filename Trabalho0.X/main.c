@@ -2,6 +2,26 @@
  * Trabalho 0  
  *   - Davide Morgado    84950
  *   - Guilherme Maniezo 84907
+ 
+ Este trabalho possui 11 funções:
+ 1) init_Ports
+ 2) config_Timer2
+ 3) config_Timer3
+ 4) verify_UART
+ 5) config_ADC 
+ 6) config_PWM
+ 7) start_PWM
+ 8) start_ADC
+ 9) ADC_OUT
+ 10) set_PWM
+ 11) test_pwm
+ 
+ As funções config_Timer2, config_Timer3, config_ADC e config_PWM são funções básicas de configuração dos registos responsáveis pelo funcionamento do Timer 2 e Timer 3, da  ADC e do sinal PWM, respetivamente.
+ A função init_Port ajusta os pinos de entrada e de saída do PIC.
+ A função verify_UART assegura a comunicação UART.
+ As funções start_ADC e ADC_OUT são incubidos de iniciarem o processo na ADC e disponibilizar na saída o seu resultado, respetivamente.
+ A função set_PWM serve para ajustar os parâmetros do pwm.
+
  */
 
 #include <xc.h>
@@ -136,7 +156,7 @@ void test_pwm(void){
     int i,j;
     for ( i = 0; i<256;i++){
         update_pwm(i);                          // increses until 256 steps
-        for( j=0;j<10000;j++);                // delay
+        for( j=0;j<10000;j++);                  // delay
     }
 }
 
