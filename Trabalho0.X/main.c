@@ -3,7 +3,7 @@
  *   - Davide Morgado    84950
  *   - Guilherme Maniezo 84907
  
- Este trabalho possui 11 funÁıes:
+ Este trabalho possui 11 fun√ß√µes:
  1) init_Ports
  2) config_Timer2
  3) config_Timer3
@@ -16,12 +16,11 @@
  10) set_PWM
  11) test_pwm
  
- As funÁıes config_Timer2, config_Timer3, config_ADC e config_PWM s„o funÁıes b·sicas de configuraÁ„o dos registos respons·veis pelo funcionamento do Timer 2 e Timer 3, da  ADC e do sinal PWM, respetivamente.
- A funÁ„o init_Port ajusta os pinos de entrada e de saÌda do PIC.
- A funÁ„o verify_UART assegura a comunicaÁ„o UART.
- As funÁıes start_ADC e ADC_OUT s„o incubidos de iniciarem o processo na ADC e disponibilizar na saÌda o seu resultado, respetivamente.
- A funÁ„o set_PWM serve para ajustar os par‚metros do pwm.
-
+ -> As fun√ß√µes config_Timer2, config_Timer3, config_ADC e config_PWM s√£o fun√ß√µes b√°sicas de configura√ß√£o dos registos respons√°veis pelo funcionamento do Timer 2 e Timer 3, da  ADC e do sinal PWM, respetivamente.
+ -> A fun√ß√£o init_Port ajusta os pinos de entrada e de sa√≠da do PIC.
+ -> A fun√ß√£o verify_UART assegura a comunica√ß√£o UART.
+ -> As fun√ß√µes start_ADC e ADC_OUT s√£o incunbidas de iniciarem o processo na ADC e disponibilizar na sa√≠da o seu resultado, respetivamente.
+ -> A fun√ß√£o set_PWM serve para ajustar os par√¢metros do pwm.
  */
 
 #include <xc.h>
@@ -31,14 +30,14 @@
 #include "uart.h" 
 #include "config_bits.h"
 
-#define SYSCLK  80000000L // System clock frequency, in Hz
-#define PBCLOCK 40000000L // Peripheral Bus Clock frequency, in Hz
+#define SYSCLK  80000000L               // System clock frequency, in Hz
+#define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
 
 #define Prescaler           7                             
-#define Presc_val           256    // biggest value is chosen to obtain smaller frequencies   
+#define Presc_val           256         // biggest value is chosen to obtain smaller frequencies   
 #define timer_freq          250
-#define TPS_256             7      // TCKPS code for 256 pre-scaler    
-#define freq_PWM            2000
+#define TPS_256             7           // TCKPS code for 256 pre-scaler    
+#define freq_PWM            2000        
 
 void init_Ports(void){
 	/* Configure RA3 and RC1 (led 4 and led 5) as Output */
@@ -66,7 +65,7 @@ void config_Timer2(int freq){
     T2CONbits.T32 = 0;                  // 16 bit timer operation      
     TMR2 = 0;
     T2CONbits.TCKPS = Prescaler;    
-    PR2 = PBCLOCK/(Presc_val*freq) - 1;   // defines timer frequency equal to Timer2_freq                                  
+    PR2 = PBCLOCK/(Presc_val*freq) - 1; // defines timer frequency equal to Timer2_freq                                  
     T2CONbits.TON = 1;                  // Start the timer
 }
 
@@ -171,20 +170,20 @@ int main(int argc, char** argv) {
     
     // Variable declarations;
     float steps; 
-    int i = 0;         // - PWM
+    int i = 0;                                  // - PWM
     float res;
     int j;
     
-    start_PWM();        // start function start PWM
-
+    start_PWM();                                // start function start PWM
+    
     while(1){
         start_ADC();
         PWM_Val = ADC_OUT(res);
         set_PWM(PWM_Val);
-        for( j=0;j<10000;j++);                // delay
+        for( j=0;j<10000;j++);                 // delay
         
-        //if we try test pwm with pwm in oscilloscope decomment test_pwm()
-        //test_pwm();
+        //test_pwm();                          // if we try test pwm with pwm in oscilloscope decomment test_pwm()
+        
     }
     return (EXIT_SUCCESS);
 }
