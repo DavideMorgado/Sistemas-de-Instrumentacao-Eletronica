@@ -16,11 +16,12 @@
  10) set_PWM
  11) test_pwm
  
- -> As funções config_Timer2, config_Timer3, config_ADC e config_PWM são funções básicas de configuração dos registos responsáveis pelo funcionamento do Timer 2 e Timer 3, da  ADC e do sinal PWM, respetivamente.
- -> A função init_Port ajusta os pinos de entrada e de saída do PIC.
- -> A função verify_UART assegura a comunicação UART.
- -> As funções start_ADC e ADC_OUT são incunbidas de iniciarem o processo na ADC e disponibilizar na saída o seu resultado, respetivamente.
- -> A função set_PWM serve para ajustar os parâmetros do pwm.
+ * As funções config_Timer2, config_Timer3, config_ADC e config_PWM são funções básicas de configuração dos registos responsáveis pelo funcionamento do Timer 2 e Timer 3, da  ADC e do sinal PWM, respetivamente.
+ * A função init_Port ajusta os pinos de entrada e de saída do PIC.
+ * A função verify_UART assegura a comunicação UART.
+ * As funções start_ADC e ADC_OUT são incunbidas de iniciarem o processo na ADC e disponibilizar na saída o seu resultado, respetivamente.
+ * A função set_PWM serve para ajustar os parâmetros do pwm.
+ * A função test_pwm serviu para realizar um teste no osciloscópio, para verificar se o PWM estava devidamente configurado.
  */
 
 #include <xc.h>
@@ -130,7 +131,7 @@ void start_ADC(void){
 }
 
 float ADC_OUT(float res){
-    //Sampled voltage  - ADC
+    // Sampled voltage  - ADC
     // Convert to 0..3.3V 
     res = (ADC1BUF0 * 3.3) / 1023;
     // Output result
@@ -139,23 +140,24 @@ float ADC_OUT(float res){
     return res;
 }
 
-void set_PWM(float PWM_VAL){
+int set_PWM(int PWM_VAL){
     int i;
     int mean = 0;
     int elements = 10;
-    //create a filter digital
+    //create a digital filter
     for(i=0;i<elements;i++){
         mean = mean+ ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100 because we need convert 0 ... 100
     }
     mean = mean /elements;
     OC3RS = mean;
+    return mean;
 }
 
 void test_pwm(void){
     int i,j;
     for ( i = 0; i<256;i++){
-        update_pwm(i);                          // increses until 256 steps
-        for( j=0;j<10000;j++);                  // delay
+        set_PWM(i);                          // increses until 256 steps
+        for( j=0;j<10000;j++);               // delay
     }
 }
 
@@ -178,7 +180,7 @@ int main(int argc, char** argv) {
     
     while(1){
         start_ADC();
-        PWM_Val = ADC_OUT(res);
+        int PWM_Val = ADC_OUT(res);
         set_PWM(PWM_Val);
         for( j=0;j<10000;j++);                 // delay
         

@@ -16,6 +16,10 @@
       <itemPath>config_bits.h</itemPath>
       <itemPath>uart.h</itemPath>
       <itemPath>uart.c</itemPath>
+      <itemPath>PWM.c</itemPath>
+      <itemPath>ADC.c</itemPath>
+      <itemPath>Ports.c</itemPath>
+      <itemPath>Timers.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -66,6 +70,8 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <item path="ADC.c" ex="true" overriding="false">
+      </item>
       <C32>
         <property key="additional-warnings" value="false"/>
         <property key="addresss-attribute-use" value="false"/>
@@ -202,6 +208,12 @@
       <PK3OBPlatformTool>
         <property key="firmware.download.all" value="false"/>
       </PK3OBPlatformTool>
+      <item path="PWM.c" ex="true" overriding="false">
+      </item>
+      <item path="Ports.c" ex="true" overriding="false">
+      </item>
+      <item path="Timers.c" ex="true" overriding="false">
+      </item>
       <item path="uart.c" ex="false" overriding="false">
         <C32>
         </C32>
