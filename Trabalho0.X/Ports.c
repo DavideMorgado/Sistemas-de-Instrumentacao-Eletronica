@@ -1,3 +1,7 @@
+#include <xc.h>
+#include <sys/attribs.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void init_Ports(void){
 	/* Configure RA3 and RC1 (led 4 and led 5) as Output */

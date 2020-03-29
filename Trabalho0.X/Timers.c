@@ -1,4 +1,14 @@
+#include <xc.h>
+#include <sys/attribs.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+#define SYSCLK  80000000L               // System clock frequency, in Hz
+#define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
+
+#define Prescaler           7                             
+#define Presc_val           256         // biggest value is chosen to obtain smaller frequencies   
+#define TPS_256             7           // TCKPS code for 256 pre-scaler    
 void config_Timer2(int freq){
     T2CONbits.ON = 0;                   //Stop timer
     T2CONbits.TGATE = 0;                

@@ -1,3 +1,12 @@
+#include <xc.h>
+#include <sys/attribs.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SYSCLK  80000000L               // System clock frequency, in Hz
+#define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
+#define freq_PWM     2000   
+
 void config_PWM(void){
    // Set OC3 - chipKIT Pin 6 
     OC3CONbits.OCM = 6;          // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)

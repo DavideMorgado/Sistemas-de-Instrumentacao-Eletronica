@@ -62,7 +62,7 @@ void config_Timer2(int freq){
     IEC0bits.T2IE = 0;                  //Enable T2 interrupts, 0 -> polling
     // Timer period configuration
     T2CONbits.TCKPS = TPS_256;          //Select pre-scaler
-                                        //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
+                                        //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,32,64,256 (correspond to the number 7)
     T2CONbits.T32 = 0;                  // 16 bit timer operation      
     TMR2 = 0;
     T2CONbits.TCKPS = Prescaler;    
@@ -83,10 +83,10 @@ void config_Timer3(int freq){
 void verify_UART(void){
     // Init UART and redirect tdin/stdot/stderr to UART
     if(UartInit(PBCLOCK, 115200) != UART_SUCCESS) {
-        PORTAbits.RA3 = 1; // If Led active error initializing UART
+        PORTAbits.RA3 = 1;              // If Led active error initializing UART
         while(1);
     }
-    __XC_UART = 1; /* Redirect stdin/stdout/stderr to UART1*/ 
+    __XC_UART = 1;                      /* Redirect stdin/stdout/stderr to UART1*/ 
     // Disable JTAG interface as it uses a few ADC ports
     DDPCONbits.JTAGEN = 0;   
 }
@@ -94,33 +94,33 @@ void verify_UART(void){
 void config_ADC(void){
     // Initialize ADC module
     // Polling mode, AN0 as input
-    // Generic part
-    AD1CON1bits.SSRC = 7;        // Internal counter ends sampling and starts conversion
-    AD1CON1bits.CLRASAM = 1;     //Stop conversion when 1st A/D converter interrupt is generated and clears ASAM bit automatically
-    AD1CON1bits.FORM = 0;        // Integer 16 bit output format
-    AD1CON2bits.VCFG = 0;        // VR+=AVdd; VR-=AVss
-    AD1CON2bits.SMPI = 0;        // Number (+1) of consecutive conversions, stored in ADC1BUF0...ADCBUF{SMPI}
-    AD1CON3bits.ADRC = 1;        // ADC uses internal RC clock
-    AD1CON3bits.SAMC = 16;       // Sample time is 16TAD ( TAD = 100ns)
+    // Generic part 
+    AD1CON1bits.SSRC = 7;           // Internal counter ends sampling and starts conversion
+    AD1CON1bits.CLRASAM = 1;        //Stop conversion when 1st A/D converter interrupt is generated and clears ASAM bit automatically
+    AD1CON1bits.FORM = 0;           // Integer 16 bit output format
+    AD1CON2bits.VCFG = 0;           // VR+=AVdd; VR-=AVss
+    AD1CON2bits.SMPI = 0;           // Number (+1) of consecutive conversions, stored in ADC1BUF0...ADCBUF{SMPI}
+    AD1CON3bits.ADRC = 1;           // ADC uses internal RC clock
+    AD1CON3bits.SAMC = 16;          // Sample time is 16TAD ( TAD = 100ns)
     // Set AN0 as input
-    AD1CHSbits.CH0SA = 0;        // Select AN0 as input for A/D converter
-    TRISBbits.TRISB0 = 1;        // Set AN0 to input mode
-    AD1PCFGbits.PCFG0 = 0;       // Set AN0 to analog mode
+    AD1CHSbits.CH0SA = 0;           // Select AN0 as input for A/D converter
+    TRISBbits.TRISB0 = 1;           // Set AN0 to input mode
+    AD1PCFGbits.PCFG0 = 0;          // Set AN0 to analog mode
     // Enable module
-    AD1CON1bits.ON = 1;          // Enable A/D module (This must be the ***last instruction of configuration phase***)
+    AD1CON1bits.ON = 1;             // Enable A/D module (This must be the ***last instruction of configuration phase***)
 }
 
 void config_PWM(void){
    // Set OC3 - chipKIT Pin 6 
-    OC3CONbits.OCM = 6;          // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)
-    OC3CONbits.OCTSEL = 1;       // Timer 3 is clock source of OCM - 1 - select timer 3 / 0 - select timer 2
+    OC3CONbits.OCM = 6;             // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)
+    OC3CONbits.OCTSEL = 1;          // Timer 3 is clock source of OCM - 1 - select timer 3 / 0 - select timer 2
    // OC3RS = 0;
-    OC3CONbits.ON = 1;           // Enable OC3
+    OC3CONbits.ON = 1;              // Enable OC3
 }
 
 void start_PWM(void){
     // Start PWM generation
-    T3CONbits.TON = 1; // Start the timer
+    T3CONbits.TON = 1;              // Start the timer
 }
 
 void start_ADC(void){

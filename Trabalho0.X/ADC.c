@@ -1,4 +1,22 @@
+#include <xc.h>
+#include <sys/attribs.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "uart.h" 
 
+#define SYSCLK  80000000L               // System clock frequency, in Hz
+#define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
+
+void verify_UART(void){
+    // Init UART and redirect tdin/stdot/stderr to UART
+    if(UartInit(PBCLOCK, 115200) != UART_SUCCESS) {
+        PORTAbits.RA3 = 1;              // If Led active error initializing UART
+        while(1);
+    }
+    __XC_UART = 1;                      /* Redirect stdin/stdout/stderr to UART1*/ 
+    // Disable JTAG interface as it uses a few ADC ports
+    DDPCONbits.JTAGEN = 0;   
+}
 void config_ADC(void){
     // Initialize ADC module
     // Polling mode, AN0 as input
