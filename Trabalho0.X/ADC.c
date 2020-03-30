@@ -43,9 +43,16 @@ void start_ADC(void){
 }
 
 float ADC_OUT(float res){
-    //Sampled voltage  - ADC
-    // Convert to 0..3.3V 
-    res = (ADC1BUF0 * 3.3) / 1023;
+      // Sampled voltage  - ADC
+    int i;
+    int mean = 0;
+    int elements = 10;
+    //create a filter digital
+    for(i=0;i<elements;i++){
+        mean = mean + (ADC1BUF0 * 3.3) / 1023;  // Convert to 0..3.3V 
+    }
+    res = mean / elements;
+    
     // Output result
     printf("Voltage: %f \n\r",res);
     //printf("Temp:%f \n",(res-2.7315)/.01); // For a LM335 directly connected

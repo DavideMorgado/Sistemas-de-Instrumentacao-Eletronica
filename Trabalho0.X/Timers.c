@@ -5,10 +5,11 @@
 
 #define SYSCLK  80000000L               // System clock frequency, in Hz
 #define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
+                  
+#define Presc_val           8          // biggest value is chosen to obtain smaller frequencies  
+#define TPS_256             3          // TCKPS code for 256 pre-scaler  
+                                       // 000=> 1 , 001=> 2, 010=> 4, 011=> 8 , ... 111=> 256
 
-#define Prescaler           7                             
-#define Presc_val           256         // biggest value is chosen to obtain smaller frequencies   
-#define TPS_256             7           // TCKPS code for 256 pre-scaler    
 void config_Timer2(int freq){
     T2CONbits.ON = 0;                   //Stop timer
     T2CONbits.TGATE = 0;                
@@ -19,8 +20,7 @@ void config_Timer2(int freq){
     T2CONbits.TCKPS = TPS_256;          //Select pre-scaler
                                         //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
     T2CONbits.T32 = 0;                  // 16 bit timer operation      
-    TMR2 = 0;
-    T2CONbits.TCKPS = Prescaler;    
+    TMR2 = 0; 
     PR2 = PBCLOCK/(Presc_val*freq) - 1; // defines timer frequency equal to Timer2_freq                                  
     T2CONbits.TON = 1;                  // Start the timer
 }

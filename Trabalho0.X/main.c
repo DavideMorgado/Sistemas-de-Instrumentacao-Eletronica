@@ -33,11 +33,13 @@
 
 #define SYSCLK  80000000L               // System clock frequency, in Hz
 #define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
-
-#define Prescaler           7                             
-#define Presc_val           256         // biggest value is chosen to obtain smaller frequencies   
+                         
+#define Presc_val           8        // biggest value is chosen to obtain smaller frequencies 
+                                       
 #define timer_freq          250
-#define TPS_256             7           // TCKPS code for 256 pre-scaler    
+#define TPS_256             3          // TCKPS code for 256 pre-scaler
+                                       // 000=> 1 , 001=> 2, 010=> 4, 011=> 8 , ... 111=> 256
+
 #define freq_PWM            2000        
 
 void init_Ports(void){
@@ -63,9 +65,8 @@ void config_Timer2(int freq){
     // Timer period configuration
     T2CONbits.TCKPS = TPS_256;          //Select pre-scaler
                                         //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,32,64,256 (correspond to the number 7)
-    T2CONbits.T32 = 0;                  // 16 bit timer operation      
+    T2CONbits.T32 = 0;                  // 16 bit timer operation       
     TMR2 = 0;
-    T2CONbits.TCKPS = Prescaler;    
     PR2 = PBCLOCK/(Presc_val*freq) - 1; // defines timer frequency equal to Timer2_freq                                  
     T2CONbits.TON = 1;                  // Start the timer
 }
@@ -132,25 +133,23 @@ void start_ADC(void){
 
 float ADC_OUT(float res){
     // Sampled voltage  - ADC
-    // Convert to 0..3.3V 
-    res = (ADC1BUF0 * 3.3) / 1023;
+    int i;
+    int mean = 0;
+    int elements = 10;
+    //create a filter digital
+    for(i=0;i<elements;i++){
+        mean = mean + (ADC1BUF0 * 3.3) / 1023;  // Convert to 0..3.3V 
+    }
+    res = mean / elements;
+    
     // Output result
     printf("Voltage: %f \n\r",res);
     //printf("Temp:%f \n",(res-2.7315)/.01); // For a LM335 directly connected
     return res;
 }
 
-int set_PWM(int PWM_VAL){
-    int i;
-    int mean = 0;
-    int elements = 10;
-    //create a digital filter
-    for(i=0;i<elements;i++){
-        mean = mean+ ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100 because we need convert 0 ... 100
-    }
-    mean = mean /elements;
-    OC3RS = mean;
-    return mean;
+void set_PWM(int PWM_VAL){
+    OC3RS = ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100, because we need convert 0 ... 100
 }
 
 void test_pwm(void){

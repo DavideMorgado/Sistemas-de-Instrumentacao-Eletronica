@@ -15,17 +15,11 @@ void config_PWM(void){
     OC3CONbits.ON = 1;           // Enable OC3
 }
 
-void set_PWM(float PWM_VAL){
-    int i;
-    int mean = 0;
-    int elements = 10;
-    //create a filter digital
-    for(i=0;i<elements;i++){
-        mean = mean+ ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100 because we need convert 0 ... 100
-    }
-    mean = mean /elements;
-    OC3RS = mean;
+
+void set_PWM(int PWM_VAL){
+    OC3RS = ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100, because we need convert 0 ... 100
 }
+
 void start_PWM(void){
     // Start PWM generation
     T3CONbits.TON = 1; // Start the timer
