@@ -148,9 +148,15 @@ float ADC_OUT(float res){
     return res;
 }
 
+int transf_function(int val){ 
+    val = val * 255 / 1023;
+    return val;
+}
+
 void set_PWM(int PWM_VAL){
     OC3RS = ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100, because we need convert 0 ... 100
 }
+
 
 void test_pwm(void){
     int i,j;
@@ -179,8 +185,9 @@ int main(int argc, char** argv) {
     
     while(1){
         start_ADC();
-        int PWM_Val = ADC_OUT(res);
-        set_PWM(PWM_Val);
+        int val_adc = ADC_OUT(res);
+        int duty_cycle = transf_function(val_adc);
+        set_PWM(duty_cycle);
         for( j=0;j<10000;j++);                 // delay
         
         //test_pwm();                          // if we try test pwm with pwm in oscilloscope decomment test_pwm()

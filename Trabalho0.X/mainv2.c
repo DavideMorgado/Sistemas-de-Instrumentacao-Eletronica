@@ -66,8 +66,9 @@ int main(int argc, char** argv) {
     
     while(1){
         start_ADC();
-        int PWM_Val = ADC_OUT(res);
-        set_PWM(PWM_Val);
+        int val_adc = ADC_OUT(res);
+        int duty_cycle = transf_function(val_adc);
+        set_PWM(duty_cycle);
         for( j=0;j<10000;j++);                 // delay
         
         //test_pwm();                          // if we try test pwm with pwm in oscilloscope decomment test_pwm()

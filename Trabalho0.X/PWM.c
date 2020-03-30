@@ -15,6 +15,10 @@ void config_PWM(void){
     OC3CONbits.ON = 1;           // Enable OC3
 }
 
+int transf_function(int val){ 
+    val = val * 255 / 1023;
+    return val;
+}
 
 void set_PWM(int PWM_VAL){
     OC3RS = ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100, because we need convert 0 ... 100
