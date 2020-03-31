@@ -24,7 +24,4 @@ Este trabalho possui 12 funções:
  * A função set_PWM serve para ajustar os parâmetros do pwm.
  * A função test_pwm serviu para realizar um teste no osciloscópio, para verificar se o PWM estava devidamente configurado.
  * A função transfer_function faz a conversão de [0,3.3] para [0,255]
-
- * Caso se pretenda realizar o teste do sinal de PWM no oscilóscopio, basta descomentar a linha test_pwm(); na main
-
  

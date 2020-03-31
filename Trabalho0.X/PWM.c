@@ -6,7 +6,7 @@
 #define SYSCLK      80000000L               // System clock frequency, in Hz
 #define PBCLOCK     40000000L               // Peripheral Bus Clock frequency, in Hz
 #define freq_PWM    2000   
-#define PWM_steps   255      
+#define PWM_steps   256      
 
 void config_PWM(void){
    // Set OC3 - chipKIT Pin 6 
@@ -17,12 +17,12 @@ void config_PWM(void){
 }
 
 int transf_function(int val){ 
-    val = val * 255 / 1023;
+    val = val * 255 / 1023;      // 255, because we need convert 0 ... 255
     return val;
 }
 
 void set_PWM(int duty){
-     OC3RS = (((PBCLOCK/1)/ freq_PWM) * duty) / PWM_steps;     // 255, because we need convert 0 ... 255
+     OC3RS = (((PBCLOCK/1)/ freq_PWM) * duty) / PWM_steps;    
 }
 
 void start_PWM(void){
