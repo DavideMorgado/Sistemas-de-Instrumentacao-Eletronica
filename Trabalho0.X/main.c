@@ -40,7 +40,8 @@
 #define TPS_256             3          // TCKPS code for 256 pre-scaler
                                        // 000=> 1 , 001=> 2, 010=> 4, 011=> 8 , ... 111=> 256
 
-#define freq_PWM            2000        
+#define PWM_steps           255        
+#define freq_PWM            2000
 
 void init_Ports(void){
 	/* Configure RA3 and RC1 (led 4 and led 5) as Output */
@@ -153,8 +154,8 @@ int transf_function(int val){
     return val;
 }
 
-void set_PWM(int PWM_VAL){
-    OC3RS = ((PBCLOCK/1) * PWM_VAL) / (freq_PWM * 100);     // 100, because we need convert 0 ... 100
+void set_PWM(int duty){
+    OC3RS = (((PBCLOCK/1)/ freq_PWM) * duty) / PWM_steps;     // 255, because we need convert 0 ... 255
 }
 
 
