@@ -13,6 +13,12 @@
 #include "uart.h" 
 #include "config_bits.h"
 
+#define timer_freq          250
+#define freq_PWM           2000   
+#define SYSCLK  80000000L               // System clock frequency, in Hz
+#define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
+#define baud  115200
+
 /* iniciate the functions */
 void init_Ports(void);
 void config_Timer2(int freq);
@@ -25,9 +31,20 @@ void start_ADC(void);
 float ADC_OUT(float res);
 int set_PWM(int PWM_VAL);
 void test_pwm(void);
-
+int GetChar(uint8_t *byte);
+int UartInit(uint64_t pbclock, uint32_t br);
+char getch(void);
+char putch(void);
+void interface(void);
 
 int main(int argc, char** argv) {
+    init_Ports();
+    config_Timer2(timer_freq);
+    config_Timer3(freq_PWM);
+    verify_UART(); 
+    config_ADC();
+    UartInit(PBCLOCK, baud);    
+    interface();
     
     
     return (EXIT_SUCCESS);
