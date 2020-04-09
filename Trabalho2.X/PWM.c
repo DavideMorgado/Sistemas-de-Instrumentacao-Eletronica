@@ -16,7 +16,7 @@ void config_PWM(void){
     OC3CONbits.ON = 1;           // Enable OC3
 }
 
-int transf_function(int val){ 
+float transf_function(float val){ 
     val = val * 255 / 1023;      // 255, because we need convert 0 ... 255
     return val;
 }

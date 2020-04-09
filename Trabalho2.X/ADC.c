@@ -42,11 +42,12 @@ void start_ADC(void){
     while (IFS1bits.AD1IF == 0);    // Wait fo EOC
 }
 
-float ADC_OUT(float res){
+float ADC_OUT(void){
       // Sampled voltage  - ADC
     int i;
     int mean = 0;
     int elements = 10;
+    float res;
     //create a filter digital
     for(i=0;i<elements;i++){
         mean = mean + (ADC1BUF0 * 3.3) / 1023;  // Convert to 0..3.3V 
@@ -54,7 +55,7 @@ float ADC_OUT(float res){
     res = mean / elements;
     
     // Output result
-    printf("Voltage: %f \n\r",res);
+    //printf("Voltage: %f \n\r",res);
     //printf("Temp:%f \n",(res-2.7315)/.01); // For a LM335 directly connected
     return res;
 }

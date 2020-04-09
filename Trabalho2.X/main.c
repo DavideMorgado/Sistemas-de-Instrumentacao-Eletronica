@@ -28,7 +28,7 @@ void config_ADC(void);
 void config_PWM(void);
 void start_PWM(void);
 void start_ADC(void);
-float ADC_OUT(float res);
+float ADC_OUT(void);
 int set_PWM(int PWM_VAL);
 void test_pwm(void);
 int GetChar(uint8_t *byte);
@@ -44,9 +44,13 @@ int main(int argc, char** argv) {
     verify_UART(); 
     config_ADC();
     UartInit(PBCLOCK, baud);    
-    interface();
     
+    start_PWM();                                // start function start PWM
     
+    while(1){  
+        interface();
+     
+    }
     return (EXIT_SUCCESS);
 }
 
