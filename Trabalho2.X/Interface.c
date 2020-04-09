@@ -46,7 +46,12 @@ void interface(void){
             ReadSensor();
             break;
         case '2' :
-           
+            read = getch();
+            if(read<= '70' && read>= '40'){
+                set_PWM(read);
+            }else if(read == '0'){
+                break;
+            }else puts("Valor de {}temperatura fora do range");
             break;
         case '3' :
             puts("\n Estado 3");
