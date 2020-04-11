@@ -46,10 +46,9 @@ int main(int argc, char** argv) {
     UartInit(PBCLOCK, baud);    
     
     start_PWM();                                // start function start PWM
-    
+   
     while(1){  
         interface();
-     
     }
     return (EXIT_SUCCESS);
 }
