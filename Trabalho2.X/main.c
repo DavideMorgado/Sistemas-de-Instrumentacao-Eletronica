@@ -37,6 +37,7 @@ char getch(void);
 char putch(void);
 void interface(void);
 
+
 int main(int argc, char** argv) {
     init_Ports();
     config_Timer2(timer_freq);

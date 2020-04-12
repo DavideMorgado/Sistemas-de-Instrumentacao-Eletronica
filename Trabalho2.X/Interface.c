@@ -7,20 +7,20 @@
 static float temperature[100];
 
 int set_PWM(int PWM_VAL);
-
+int PI_controller(int y, int r, float k, int Kp, int Ti);
 
 unsigned char getch(void)
 {
      if(U1STAbits.OERR == 1){           // if register Receive buffer has overflowed (1) then reset)
-            U1STAbits.OERR == 0;
-        }
-        while(!U1STAbits.URXDA );
-        if((U1STAbits.FERR == 1) ||(U1STAbits.PERR == 1)){  // if Framing error and Parity error has been detected for the current character
-            U1RXREG = getchar(); 
-            return 0;
-        }else{
-            return U1RXREG = getchar();
-        }
+        U1STAbits.OERR == 0;
+     }
+     while(!U1STAbits.URXDA );
+     if((U1STAbits.FERR == 1) ||(U1STAbits.PERR == 1)){  // if Framing error and Parity error has been detected for the current character
+        U1RXREG = getchar(); 
+        return 0;
+     }else{
+        return U1RXREG = getchar();
+     }
      return U1RXREG;
 }
 
@@ -59,7 +59,7 @@ void printMenu(void){
     printf("----------------------------------------\n\n\r");
 }
 
-float simulate(int value){
+float simulate(int value){              //
     int i = 0;
     temperature[i++] = value;
     int j,k;
@@ -72,8 +72,8 @@ float simulate(int value){
 int init(void){
     int aux=0;
     int i=0;
-                                  // for simulate :    float temperature = simulate();       
-    temperature[i] = simulate(0);    // for use real sensor: float temperature = ReadSensor()
+    temperature[i] = simulate(0);       // for simulate :    float temperature = simulate(0);       
+                                        // for use real sensor: float temperature = ReadSensor()
     while(temperature[i] < 40.0){
        printf("|------------------|");
        set_PWM(aux++);
@@ -89,14 +89,19 @@ int init(void){
     return aux;
 }
 
+void verification(void){
+    float temp = ReadSensor();
+  
+}
 void interface(void){
     //variable declarations
     char user;
     float temp;
-    int aux = init();       // init the signal pwn to ajust the temperature into the range 
-    int maxs = 0,i;
-    printMenu();            // prints interface 
-    while(user != '5'){     // when user press number 5 the system out
+    int aux = init();                   // init the signal pwn to ajust the temperature into the range 
+    int maxs = 0,i,u;
+    
+    printMenu();                        // prints interface 
+    while(user != '5'){                 // when user press number 5 the system out
         user = getch(); 
         switch(user){
         case '0':
@@ -109,11 +114,13 @@ void interface(void){
             break;
         case '2' :
             printf("| Heating Resistor |\n");
-            set_PWM(aux++);
+            u = PI_controller(aux,aux++,0.5,2,0.2);
+            set_PWM(u);
             break;
         case '3' :     
             printf("| Cooling down Resistor|\n");
-            set_PWM(aux--);
+            u = PI_controller(aux,aux--,0.5,2,0.2);
+            set_PWM(u);
             break;
         case '4' : 
             printf("OLA");
