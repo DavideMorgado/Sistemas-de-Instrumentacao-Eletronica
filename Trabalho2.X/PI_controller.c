@@ -8,7 +8,15 @@
  * Saída :      Sinal de controlo - u(t)
  * 
  */ 
-int PI_controller(int y, int r, float k, int Kp, int Ti)
+#include <xc.h>
+#include <sys/attribs.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "uart.h" 
+
+static double integral_part;
+
+int PI_controller(int y, int r, double k, double Kp, double Ti)
 {
     if( r  < 40){
         r = 40;
@@ -16,13 +24,9 @@ int PI_controller(int y, int r, float k, int Kp, int Ti)
     }else if ( r > 70){
         r = 70;
         printf(" Out of range [40;70]");
-    }
-    int e = r - y;                                  //  
-    int i, integral_part;
-    for (i = 0;i<k;){
-        integral_part = integral_part + e*k(i);        //  esta variavel tem que ser global juntamente com o sinal u
-        i = i +0.1;
-    }
+    }else {}
+    int e = r - y;                              //  
+    integral_part = integral_part + e*k;        //  esta variavel tem que ser global juntamente com o sinal u
     int u = Kp*(e + (1/Ti)*integral_part);  
     return u;
 }

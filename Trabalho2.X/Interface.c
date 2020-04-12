@@ -8,6 +8,8 @@ static float temperature[100];
 
 int set_PWM(int PWM_VAL);
 int PI_controller(int y, int r, float k, int Kp, int Ti);
+float simulate(int value); 
+int init(void);
 
 unsigned char getch(void)
 {
@@ -47,6 +49,7 @@ float ReadSensor(void){
 void printMenu(void){
     //Show menu
     printf("\n\n");
+    printf("\n\n");
     printf("-------------------------------------------------\n");
     printf("|                     MENU                      |\n");
     printf("-------------------------------------------------\n");
@@ -59,47 +62,23 @@ void printMenu(void){
     printf("----------------------------------------\n\n\r");
 }
 
-float simulate(int value){              //
-    int i = 0;
-    temperature[i++] = value;
-    int j,k;
-    temperature[i]++;
-    for(j=0;j<150000;j++);
-    for(k=0;k<100000;k++); 
-    return temperature[i];
-}
 
-int init(void){
-    int aux=0;
-    int i=0;
-    temperature[i] = simulate(0);       // for simulate :    float temperature = simulate(0);       
-                                        // for use real sensor: float temperature = ReadSensor()
-    while(temperature[i] < 40.0){
-       printf("|------------------|");
-       set_PWM(aux++);
-       printf("| Heating Resistor |");
-       printf("... %f ºC\n", temperature[i++]);
-       temperature[i] = simulate(aux);
-    }
-    if(temperature[i] >= 40.0){
-        printf("\n|------------------|\n");
-        printf("| Inside range|\n");
-        set_PWM(aux);
-    }  
-    return aux;
-}
-
-void verification(void){
-    float temp = ReadSensor();
-  
-}
 void interface(void){
     //variable declarations
-    char user;
+    char user,user0;
     float temp;
-    int aux = init();                   // init the signal pwn to ajust the temperature into the range 
-    int maxs = 0,i,u;
-    
+    int maxs = 0,i,u,aux;
+    printf("\nPrefere use simulation or real values ? \n");
+    printf("| 0 : Simulation ? \n");
+    printf("| 1 : Real values? \n");
+    user0 = getch();
+    if(user0 == '0'){
+        aux = init();                   // init the signal pwn to ajust the temperature into the range 
+    }else if(user0 =='1'){
+        
+    }else{
+        puts("Invalid entry");
+    }
     printMenu();                        // prints interface 
     while(user != '5'){                 // when user press number 5 the system out
         user = getch(); 
