@@ -4,12 +4,14 @@
 #include <stdlib.h>
 #include "uart.h" 
 
-static float temperature[100];
+double temperature_sim[100];
+double temperature_real[100];
 
 int set_PWM(int PWM_VAL);
 int PI_controller(int y, int r, float k, int Kp, int Ti);
 float simulate(int value); 
-int init(void);
+int init_sim(void);
+float ReadSensor(void);
 
 unsigned char getch(void)
 {
@@ -31,21 +33,6 @@ void putch(char byte2send){
     U1TXREG = byte2send;            // Copy byte2send to the UxTXREG register
 }
 
-float ReadSensor(void){
-   // Variable declarations;
-    float media=0;
-    float val_adc;
-    int i,elements = 10;
-    for(i=0;i<elements;i++){
-        start_ADC();
-        val_adc = ADC_OUT();
-        temperature[i] = transf_function(val_adc);
-        media = media + temperature[i];
-    }
-    media = media/elements;
-    return media;
-}
-
 void printMenu(void){
     //Show menu
     printf("\n\n");
@@ -62,20 +49,34 @@ void printMenu(void){
     printf("----------------------------------------\n\n\r");
 }
 
-
 void interface(void){
     //variable declarations
     char user,user0;
-    float temp;
-    int maxs = 0,i,u,aux;
+    int max=0,i,aux_real=0, aux_sim=0;
+    int x;
+    int u_real, u_sim;
+    //choose real values with sensor PT100 or simulate values 
     printf("\nPrefere use simulation or real values ? \n");
     printf("| 0 : Simulation ? \n");
     printf("| 1 : Real values? \n");
     user0 = getch();
     if(user0 == '0'){
-        aux = init();                   // init the signal pwn to ajust the temperature into the range 
+        //aux_sim = init_sim();                   // init the signal pwn to ajust the temperature into the range 
+        temperature_sim[aux_sim] = init_sim();      
     }else if(user0 =='1'){
-        
+        temperature_real[aux_real] = 0;
+        while(temperature_real[aux_real]>70){
+            temperature_real[aux_real+1] = ReadSensor();
+            printf("Temperature atual",temperature_real[aux_real]);
+            u_real = PI_controller(temperature_real[aux_real],temperature_real[aux_real]-1,0.5,2,0.2);
+            set_PWM(u_real);
+        }
+        while(temperature_real[aux_real]<40.0){
+            temperature_real[aux_real+1] = ReadSensor();
+            printf("Temperature atual",temperature_real[aux_real]);
+            u_real = PI_controller(temperature_real[aux_real],temperature_real[aux_real]+1,0.5,2,0.2);
+            set_PWM(u_real);
+        }
     }else{
         puts("Invalid entry");
     }
@@ -87,29 +88,64 @@ void interface(void){
             puts("\nO presente projeto tem como principal objetivo criar circuitos, que controlados a partir do utilizador, possam aquecer uma resistência num dado intervalo de temperatura e com umas especificações explicitas no relatório. ");
             break;
         case '1':
-            temp = ReadSensor();
-            puts("\n Temperatura instantanea : ");
-            printf("%d\n",temp);  
+            if(user0 == '1'){                               // real values (sensor PT100)
+                temperature_real[aux_real+1] = ReadSensor();
+                puts("\n instant temperature : ");
+                printf("%f\n",temperature_real[aux_real]);  
+            }else if(user0 == '0'){                         // simulate values 
+                puts("\n Instant simulate temperature  : ");
+                printf("%f \n",temperature_sim[aux_sim]);  
+            }
             break;
-        case '2' :
-            printf("| Heating Resistor |\n");
-            u = PI_controller(aux,aux++,0.5,2,0.2);
-            set_PWM(u);
+        case '2' :                                           // real values (sensor PT100)
+            if(user0 == '1'){
+                printf("| Heating Resistor |\n");
+                u_real = PI_controller(temperature_real[aux_real],temperature_real[aux_real]+1,0.5,2,0.2);
+                set_PWM(u_real);
+                printf("New temperature: %f",temperature_real[aux_real]++);
+            }else if(user0 == '0'){                          // simulate values 
+                printf("| Heating Resistor|\n");
+                u_sim = PI_controller(temperature_sim[aux_sim],temperature_sim[aux_sim]+1,0.5,2,0.2);
+                set_PWM(u_sim);
+                aux_sim = aux_sim +1;
+                temperature_sim[aux_sim] = temperature_sim[aux_sim-1]+1;
+                printf("New temperature: %f",temperature_sim[aux_sim]);
+            }
             break;
         case '3' :     
-            printf("| Cooling down Resistor|\n");
-            u = PI_controller(aux,aux--,0.5,2,0.2);
-            set_PWM(u);
+            if(user0 == '1'){
+                printf("| Heating Resistor |\n");
+                u_real = PI_controller(temperature_real[aux_real],temperature_real[aux_real]-1,2,0.1,0.1);
+                set_PWM(u_real);
+                printf("New temperature: %f",temperature_real[aux_real]--);
+                //printf("sinal u: %f",u_real);
+            }else if(user0 == '0'){                          // simulate values 
+                printf("| Heating Resistor |\n");
+                u_real = PI_controller(temperature_sim[aux_sim],temperature_sim[aux_sim]-1,0.5,2,0.2);
+                set_PWM(u_sim);
+                printf("New temperature: %f",temperature_sim[aux_sim]--);
+                //printf("sinal u: %f",u_real);
+            }
             break;
         case '4' : 
-            printf("OLA");
-            for (i=0;i<1000;i++){
-                //if(temperature[i] = maxs){
+            if(user0 == '1'){
+                for (i=0;i<aux_real;i++){
+                    if(temperature_real[aux_real] > max){
+                        max = temperature_real[aux_real];
+                    }
+                }
+            }else if(user0 == '0'){           
+                for(x=0;x<40;){
+                   
+                    if(max < temperature_sim[x]){
+                        max = temperature_sim[x];
+                    }
+                    x++;
                     
-            //    }
+                }
             }
-            maxs = 5;
-            printf("|Peak temperature ( from startup ): %f ºC |\n", maxs);
+            
+            printf("|Peak temperature ( from startup ): %f ºC |\n", max);
             break;
         case '5':
             puts("Bye");
