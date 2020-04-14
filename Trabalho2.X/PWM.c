@@ -16,8 +16,10 @@ void config_PWM(void){
     OC3CONbits.ON = 1;           // Enable OC3
 }
 
-float transf_function(float val){ 
-    val = val * 255 / 1023;      // 255, because we need convert 0 ... 255
+double transf_function(double val){ 
+    double m = 0.384481818;
+    double R = val / 0.001;      // calculation of the sensor resistance value  (with 1mA from corrent source)
+    val =( R - 100 ) / m;        // this formula is explain in report
     return val;
 }
 

@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     config_PWM();
     
     while(1){  
-            interface();
+        interface();
     }
     return (EXIT_SUCCESS);
 }

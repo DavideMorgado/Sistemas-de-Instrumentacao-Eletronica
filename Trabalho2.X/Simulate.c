@@ -28,7 +28,7 @@ int init_sim(void){
 */           
         printf("|------------------|");
         printf("| Heating Resistor |");
-        printf("... %f ºC\n", temperature_si[i++]);
+        printf("... %f C\n", temperature_si[i++]);
         temperature_si[i] = simulate(aux);
     }
     if(temperature_si[i] >= 40){
