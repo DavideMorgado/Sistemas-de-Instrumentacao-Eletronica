@@ -25,12 +25,9 @@ double PI_controller(double y, double r, double k, double Kp, double Ti)
     /* Temperature in range [40,70] ºC*/
     if( r < 40){
         r = 40;
-        printf(" Out of range [40;70]\n");
     }else if ( r > 70){
         r = 70;
-        printf(" Out of range [40;70]\n");
     }else{
-        printf("\nNew value, %f , are inside of range [40,70]ºC\n", r);
     }
     e = r - y;                                  //
     integral_part = integral_part + e*k;        //  esta variavel tem que ser global juntamente com o sinal u

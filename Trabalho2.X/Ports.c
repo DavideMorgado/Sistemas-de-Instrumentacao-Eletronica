@@ -12,7 +12,7 @@ void init_Ports(void){
     
 	/*define initial values for RA3 and RC1*/
     PORTAbits.RA3 = 0;
-    PORTCbits.RC1 = 1;
+    PORTCbits.RC1 = 0;
     
     // Set RD0 as digital output - PWM
     TRISDbits.TRISD0 = 0;

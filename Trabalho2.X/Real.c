@@ -19,5 +19,4 @@ float ReadSensor(void){
     duty = ADC_OUT();                            // obtain the value from ADC
     temperature_real = transf_function(duty);     
     return temperature_real;
-     
 }
