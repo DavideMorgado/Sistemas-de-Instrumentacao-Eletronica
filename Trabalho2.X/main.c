@@ -15,41 +15,31 @@
 
 #define timer_freq          250
 #define freq_PWM           2000   
-#define SYSCLK  80000000L               // System clock frequency, in Hz
-#define PBCLOCK 40000000L               // Peripheral Bus Clock frequency, in Hz
-#define baud  115200
+#define SYSCLK        80000000L               // System clock frequency, in Hz
+#define PBCLOCK       40000000L               // Peripheral Bus Clock frequency, in Hz
+#define baud             115200
 
-/* iniciate the functions */
+/*declare other functions of others files*/
 void init_Ports(void);
 void config_Timer2(int freq);
 void config_Timer3(int freq);
 void verify_UART(void);
 void config_ADC(void);
 void config_PWM(void);
-void start_PWM(void);
-void start_ADC(void);
-float ADC_OUT(void);
-int set_PWM(int PWM_VAL);
-void test_pwm(void);
-int GetChar(uint8_t *byte);
-int UartInit(uint64_t pbclock, uint32_t br);
-char getch(void);
-char putch(void);
 void interface(void);
-
+int UartInit(uint64_t pbclock, uint32_t br);
 
 int main(int argc, char** argv) {
-    init_Ports();
-    config_Timer2(timer_freq);
-    config_Timer3(freq_PWM);
-    verify_UART(); 
+    init_Ports();                           // init ports 
+    config_Timer2(timer_freq);              // config timer 2 for ADC
+    config_Timer3(freq_PWM);                // config timer 3 for PWM
+    verify_UART();                          // check the connection in the uart (when the uart sets the LED 5 lights)
     config_ADC();
     UartInit(PBCLOCK, baud);    
+    config_PWM();
     
-    start_PWM();                                // start function start PWM
-    interface();
     while(1){  
-
+            interface();
     }
     return (EXIT_SUCCESS);
 }

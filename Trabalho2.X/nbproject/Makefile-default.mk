@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ADC.c Ports.c PWM.c Timers.c uart.c main.c
+SOURCEFILES_QUOTED_IF_SPACED=ADC.c Ports.c PWM.c Timers.c uart.c main.c Interface.c PI_controller.c Simulate.c Real.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/Ports.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/Timers.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/main.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/Ports.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/Timers.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/main.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/Ports.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/Timers.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Interface.o ${OBJECTDIR}/PI_controller.o ${OBJECTDIR}/Simulate.o ${OBJECTDIR}/Real.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/Ports.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/Timers.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/Interface.o.d ${OBJECTDIR}/PI_controller.o.d ${OBJECTDIR}/Simulate.o.d ${OBJECTDIR}/Real.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/Ports.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/Timers.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/main.o
+OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/Ports.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/Timers.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Interface.o ${OBJECTDIR}/PI_controller.o ${OBJECTDIR}/Simulate.o ${OBJECTDIR}/Real.o
 
 # Source Files
-SOURCEFILES=ADC.c Ports.c PWM.c Timers.c uart.c main.c
+SOURCEFILES=ADC.c Ports.c PWM.c Timers.c uart.c main.c Interface.c PI_controller.c Simulate.c Real.c
 
 
 
@@ -143,6 +143,30 @@ ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/main.o 
 	@${FIXDEPS} "${OBJECTDIR}/main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/main.o.d" -o ${OBJECTDIR}/main.o main.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
 	
+${OBJECTDIR}/Interface.o: Interface.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Interface.o.d 
+	@${RM} ${OBJECTDIR}/Interface.o 
+	@${FIXDEPS} "${OBJECTDIR}/Interface.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Interface.o.d" -o ${OBJECTDIR}/Interface.o Interface.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
+${OBJECTDIR}/PI_controller.o: PI_controller.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/PI_controller.o.d 
+	@${RM} ${OBJECTDIR}/PI_controller.o 
+	@${FIXDEPS} "${OBJECTDIR}/PI_controller.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PI_controller.o.d" -o ${OBJECTDIR}/PI_controller.o PI_controller.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
+${OBJECTDIR}/Simulate.o: Simulate.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Simulate.o.d 
+	@${RM} ${OBJECTDIR}/Simulate.o 
+	@${FIXDEPS} "${OBJECTDIR}/Simulate.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Simulate.o.d" -o ${OBJECTDIR}/Simulate.o Simulate.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
+${OBJECTDIR}/Real.o: Real.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Real.o.d 
+	@${RM} ${OBJECTDIR}/Real.o 
+	@${FIXDEPS} "${OBJECTDIR}/Real.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Real.o.d" -o ${OBJECTDIR}/Real.o Real.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
 else
 ${OBJECTDIR}/ADC.o: ADC.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -179,6 +203,30 @@ ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/main.o.d 
 	@${RM} ${OBJECTDIR}/main.o 
 	@${FIXDEPS} "${OBJECTDIR}/main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/main.o.d" -o ${OBJECTDIR}/main.o main.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
+${OBJECTDIR}/Interface.o: Interface.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Interface.o.d 
+	@${RM} ${OBJECTDIR}/Interface.o 
+	@${FIXDEPS} "${OBJECTDIR}/Interface.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Interface.o.d" -o ${OBJECTDIR}/Interface.o Interface.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
+${OBJECTDIR}/PI_controller.o: PI_controller.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/PI_controller.o.d 
+	@${RM} ${OBJECTDIR}/PI_controller.o 
+	@${FIXDEPS} "${OBJECTDIR}/PI_controller.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PI_controller.o.d" -o ${OBJECTDIR}/PI_controller.o PI_controller.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
+${OBJECTDIR}/Simulate.o: Simulate.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Simulate.o.d 
+	@${RM} ${OBJECTDIR}/Simulate.o 
+	@${FIXDEPS} "${OBJECTDIR}/Simulate.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Simulate.o.d" -o ${OBJECTDIR}/Simulate.o Simulate.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
+	
+${OBJECTDIR}/Real.o: Real.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Real.o.d 
+	@${RM} ${OBJECTDIR}/Real.o 
+	@${FIXDEPS} "${OBJECTDIR}/Real.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Real.o.d" -o ${OBJECTDIR}/Real.o Real.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp=${DFP_DIR}
 	
 endif
 

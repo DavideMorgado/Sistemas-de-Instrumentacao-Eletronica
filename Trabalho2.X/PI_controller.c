@@ -14,19 +14,26 @@
 #include <stdlib.h>
 #include "uart.h" 
 
+/*global variables*/
 static double integral_part;
+static double u;
 
-int PI_controller(int y, int r, double k, double Kp, double Ti)
+double PI_controller(double y, double r, double k, double Kp, double Ti)
 {
-    if( r  < 40){
+    /*Variables*/
+    double e;
+    /* Temperature in range [40,70] ºC*/
+    if( r < 40){
         r = 40;
-        printf(" Out of range [40;70]");
+        printf(" Out of range [40;70]\n");
     }else if ( r > 70){
         r = 70;
-        printf(" Out of range [40;70]");
-    }else {}
-    int e = r - y;                              //  
+        printf(" Out of range [40;70]\n");
+    }else{
+        printf("\nNew value, %f , are inside of range [40,70]ºC\n", r);
+    }
+    e = r - y;                                  //
     integral_part = integral_part + e*k;        //  esta variavel tem que ser global juntamente com o sinal u
-    int u = Kp*(e + (1/Ti)*integral_part);  
+    u = Kp * (e + (1/Ti)*integral_part);  
     return u;
 }
