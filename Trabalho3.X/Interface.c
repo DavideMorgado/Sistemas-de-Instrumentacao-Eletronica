@@ -65,53 +65,28 @@ void printMenu(void){
     printf("------------------------------------------------\n\n\r");
 }
 
-void verification(int x){
-        double temp_desired;
-        dist_real[aux_real] = ReadSensor();              // read, first, value of temperature 
-        x = floor(temperature_real[aux_real]);                  // to convert for integer with resolution 1 c
-        printf("current distance %d C",x);                   // print new value
-        if(x == 0){                                             // x == 0 when we want heet or cool the resistor, in inicial case
-            while(dist_real[aux_real]<range_min){        // if <range_min then 
-                printf(" Out of range [;]\n");
-                u_real = PI_controller(dist_real[aux_real],dist_real[aux_real]+1,0.5,2,0.2);      //send to the function PI_Controller 
-                set_PWM(u_real);                                // send signal u for pwm, to adjust the temperature
-                aux_real = aux_real +1;                         // increase index
-                dist_real[aux_real] = ReadSensor();      // read new value for new index
-                x = floor(temperature_real[aux_real]);          // to convert for integer with resolution 1 ºc
-                printf("Current temperature %d C",x);           // print new value
-                PORTAbits.RA3 = 0;                              // If the led is desative it is because the temperature is out the range
-            }
-            while(dist_real[aux_real]>range_max){               // while temperature <range_max then 
-                printf(" Out of range [40;70]\n");
-                u_real = PI_controller(dist_real[aux_real],dist_real[aux_real]-1,0.5,2,0.2);      //send to the function PI_Controller 
-                set_PWM(u_real);                                // send signal u for pwm, to adjust the temperature
-                aux_real = aux_real +1;                         // increase index
-                dist_real[aux_real] = ReadSensor();      // read new value for new index
-                 x = floor(temperature_real[aux_real]);         // to convert for integer with resolution 1 ºc
-                printf("Current temperature %d C",x);             // print new value
-                PORTAbits.RA3 = 0;                              // If the led is desative it is because the temperature is out the range
-            }
-            PORTAbits.RA3 = 1;                                  // If the led is active it is because the temperature is within the range
-        }else if (x == 1){                                      // x == 1 when we want heet the resistor  
-            temp_desired = dist_real[aux_real]+1;
-            while(dist_real[aux_real]<temp_desired){
-                printf("| Heating Resistor |\n");
-                u_real = PI_controller(dist_real[aux_real],temp_desired,0.5,2,0.2);
-                set_PWM(u_real);
-                u_real = u_real +1;                             // increase index
-                dist_real[aux_real] = ReadSensor();      // read new value for new index
-            }
-        }else if( x == 2){                                      // x == 2 when we want cool the resistor  
-            temp_desired = dist_real[aux_real]-1;
-            while(dist_real[aux_real]>temp_desired){
-                printf("| Cool Resistor |\n");
-                u_real = PI_controller(dist_real[aux_real],temp_desired,0.5,2,0.2);
-                set_PWM(u_real);
-                u_real = u_real +1;                             // increase index
-                dist_real[aux_real] = ReadSensor();      // read new value for new index
-            }
+
+void verification(void){
+    double dist;
+    dist_real[aux_real] = ReadSensor();                         // read, first, value of distance 
+    dist = floor(dist_real[aux_real]);                   // to convert for integer with resolution 1 c
+    printf("current distance %d mm",dist);                       // print new value
+    while(dist_real[aux_real]<range_min || dist_real[aux_real]>range_max){
+        dist_real[aux_real++] = ReadSensor();                     // read value
+        if(dist_real[aux_real]<range_min){                      // if distance <range_min then 
+            printf(" Out of range %d \n", range_min);
+            printf("Current distance %d mm",dist);            // print new value
+            PORTAbits.RA3 = 0;                                  // If the led is desative it is because the temperature is out the range
         }
+        else if(dist_real[aux_real]>range_max){                 // if distance <range_max then 
+            printf(" Out of range %d \n", range_max);
+            printf("Current distance %d mm",dist);            // print new value
+            PORTAbits.RA3 = 0;                                  // If the led is desative it is because the temperature is out the range
+        }
+        PORTAbits.RA3 = 1;                                  // If the led is active it is because the temperature is within the range
+    }
 }
+
 
 /* Interface for user interaction */
 void interface(void){
@@ -128,13 +103,13 @@ void interface(void){
     printf("| 1 : Real values? \n");
     user0 = getch();
     if(user0 == '0'){
-        dist_sim[aux_sim] = init_sim();                  // init the signal pwn to ajust the temperature into the range 
+        dist_sim[aux_sim] = init_sim();                         // init the signal pwn to ajust the temperature into the range 
         if(dist_sim[aux_sim] > range_min) {
             PORTAbits.RA3 = 1;                                  // If the led is active it is because the temperature is within the range
         }
     }else if(user0 =='1'){
-        //verification(0);
-        printf("Out of range");
+        printf("Mode : Real values selected\n");
+        verification();
     }else{                                                      // char invalid, repeat 
         puts("Invalid entry");
         dist_sim[aux_sim] = 0;
@@ -147,21 +122,26 @@ void interface(void){
         switch(user){
         case '1':
             if(user0 == '1'){                                  // real values (sensor PT100)
-                dist_sim[aux_real+1] = ReadSensor();
-                puts("\n Instant temperature : ");
-                x = floor(temperature_real[aux_real]);         // to convert for integer with resolution 1 ºc
-                printf("%d C \n",x);  
+                dist_real[aux_real+1] = ReadSensor();
+                if( dist_real[aux_real] < range_min || dist_real[aux_real] > range_max ){
+                     printf("Out of range[%d;%d]", range_min,range_max);  
+                }  
+                else{
+                    puts("\n Instant distance : ");
+                    x = floor(dist_real[aux_real]);            // to convert for integer with resolution 1 ºc
+                    printf("%d mm \n",x); 
+                }
             }else if(user0 == '0'){                            // simulate values 
-                puts("\n Instant simulate temperature  : ");
-                printf("%1f C \n ",dist_sim[aux_sim]);  
+                puts("\n Instant simulate distance  : ");
+                printf("%f mm \n ",dist_sim[aux_sim]);  
             }
             break;
         case '2' :                                             // calculate the peak of temperature from startup   
             if(user0 == '1'){                                               
-                max = dist_real[0];                             // max = the first value of array 
+                max = dist_real[0];                            // max = the first value of array 
                 for(i=1;i<aux_real+1;i++){                     // i < number of positions
-                    if(dist_real[i]>max){                       // if atual value of temperature is bigger then max
-                        max = dist_real[i];                     // max refresh with the new temperature
+                    if(dist_real[i]>max){                      // if atual value of temperature is bigger then max
+                        max = dist_real[i];                    // max refresh with the new temperature
                     }                        
                 }
             printf("|Peak distance ( from startup ): %d mm |\n", max);    
@@ -183,7 +163,7 @@ void interface(void){
                     mean = mean + dist_real[i];
                 }
                 mean = mean / (aux_real +1 );
-                printf("|Mean temperature ( from startup ): %f C |\n", mean);    
+                printf("|Mean distance ( from startup ): %f mm |\n", mean);    
             }
             else if(user0 == '0'){
                 mean = dist_sim[0];
@@ -191,7 +171,7 @@ void interface(void){
                     mean = mean + dist_sim[i];
                 }
                 mean = mean /(aux_sim +1);
-                printf("|Mean temperature ( from startup ): %f C |\n", mean);    
+                printf("|Mean distance ( from startup ): %f mm |\n", mean);    
             }
             break;
         case '4':
