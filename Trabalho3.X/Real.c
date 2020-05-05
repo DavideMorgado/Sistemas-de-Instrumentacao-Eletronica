@@ -35,7 +35,7 @@ double ReadSensor(void){
     /*dont necessary realized mean because is already done in ADC_OUT()*/
     start_ADC();                                        // init conversation           
     duty = ADC_OUT();                                   // obtain the value from ADC
-    inv = transf_function(1023);
+    inv = transf_function(duty);                        // we test with duty equal to 1023
     dist = conv_dist(inv);
     double duty_cycle = percentage(dist);
     set_PWM(duty_cycle);
