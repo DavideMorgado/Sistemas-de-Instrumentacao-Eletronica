@@ -87,14 +87,29 @@ void verification(void){
     }
 }
 
+int convert(double val){
+    int  x = floor(val);            // to convert for integer with resolution 1 mm
+    return x;
+}
 
+void led(double val){
+    if(val >= range_min) {
+        PORTAbits.RA3 = 1;                                      // If the led is active it is because the distance is within the range
+    }
+    else if(val <= range_max){
+        PORTAbits.RA3 = 1;   
+    }else {
+        PORTAbits.RA3 = 0;                                     // force the led as '0'
+    }
+
+}
 /* Interface for user interaction */
 void interface(void){
         //variable declarations
     init_Ports();
     char user,user0;
-    int i,max;
-    double mean;
+    int i;
+    double mean,max;
 
     start_PWM();                                                // start function start PWM
     
@@ -104,9 +119,6 @@ void interface(void){
     user0 = getch();
     if(user0 == '0'){
         dist_sim[aux_sim] = init_sim();                         // init the signal pwn to ajust the temperature into the range 
-        if(dist_sim[aux_sim] > range_min) {
-            PORTAbits.RA3 = 1;                                  // If the led is active it is because the temperature is within the range
-        }
     }else if(user0 =='1'){
         printf("Mode : Real values selected\n");
         verification();
@@ -118,17 +130,25 @@ void interface(void){
     printMenu();                                               // prints interface 
     
     while(user != '6'){                                        // when user press number 6 the system out
+        //active led 
+        if(user0 == '1'){    
+            led(dist_real[aux_real]);
+        }else if(user0 == '0'){
+            led(dist_sim[aux_sim]);
+        }
+        
+        //interface
         user = getch(); 
         switch(user){
         case '1':
             if(user0 == '1'){                                  // real values (sensor PT100)
                 dist_real[aux_real+1] = ReadSensor();
                 if( dist_real[aux_real] < range_min || dist_real[aux_real] > range_max ){
-                     printf("Out of range[%d;%d]", range_min,range_max);  
+                    printf("Out of range[%d;%d]", range_min,range_max);  
                 }  
                 else{
                     puts("\n Instant distance : ");
-                    x = floor(dist_real[aux_real]);            // to convert for integer with resolution 1 ºc
+                    convert(dist_real[aux_real]);
                     printf("%d mm \n",x); 
                 }
             }else if(user0 == '0'){                            // simulate values 
@@ -140,23 +160,24 @@ void interface(void){
             if(user0 == '1'){                                               
                 max = dist_real[0];                            // max = the first value of array 
                 for(i=1;i<aux_real+1;i++){                     // i < number of positions
-                    if(dist_real[i]>max){                      // if atual value of temperature is bigger then max
-                        max = dist_real[i];                    // max refresh with the new temperature
+                    if(dist_real[i]>max){                      // if atual value of distance is bigger then max
+                        max = dist_real[i];                    // max refresh with the new distance
                     }                        
                 }
+            convert(max);
             printf("|Peak distance ( from startup ): %d mm |\n", max);    
             }
-            else if(user0 == '0'){                               //for simulate values  
-                max = dist_sim[0];                               // max = the first value of array 
-                for(i=1;i<aux_sim+1;i++){                        // i < number of positions
-                    if(dist_sim[i]>max){                        // if atual value of temperature is bigger then max
-                        max= dist_sim[i];            // max refresh with the new temperature
+            else if(user0 == '0'){                              //for simulate values  
+                max = dist_sim[0];                              // max = the first value of array 
+                for(i=1;i<aux_sim+1;i++){                       // i < number of positions
+                    if(dist_sim[i]>max){                        // if atual value of distance is bigger then max
+                        max= dist_sim[i];                       // max refresh with the new distance
                     }
                 }
             printf("|Peak distance ( from startup ): %d mm |\n", max);    
             }    
             break;
-        case '3':                                           // calculate the mean
+        case '3':                                                // calculate the mean
             if(user0 == '1'){
                 mean = dist_real[0];
                 for(i=1;i<aux_real+1;i++){
@@ -175,7 +196,7 @@ void interface(void){
             }
             break;
         case '4':
-            puts("\nThe main objective of this project is to create circuits, \n that controlled from the user, \n explicit in the report. ");
+            puts("\nThe main objective of this project is to create circuits, \n that controlled from the user, with the possibility to read the distance sensor value and obtain\n some information after the measurements as maximum and average value. \n For more information are explicit in the report. ");
             break;
          case '5':
             printMenu();

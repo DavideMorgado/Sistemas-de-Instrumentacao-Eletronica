@@ -17,10 +17,8 @@ void config_PWM(void){
 }
 
 double transf_function(double val){ 
-    double m = 0.384481818;
-    double R = val / 0.001;      // calculation of the sensor resistance value  (with 1mA from corrent source)
-    val =( R - 100 ) / m;        // this formula is explain in report
-    return val;
+    double dist = (val-0.002)/ (0.00000782);
+    return dist;
 }
 
 void set_PWM(int duty){
