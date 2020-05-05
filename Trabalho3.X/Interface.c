@@ -62,7 +62,8 @@ void printMenu(void){
     printf("| 4 : Info about the system                 \t\t|\n");
     printf("| 5 : Repeat menu print                     \t\t|\n");
     printf("| 6 : Exit                                  \t\t|\n");
-    printf("------------------------------------------------\n\n\r");
+    printf("------------------------------------------------\r");
+    printf("Option: \r");
 }
 
 
@@ -70,8 +71,8 @@ void verification(void){
     double dist;
     dist_real[aux_real] = ReadSensor();                         // read, first, value of distance 
     dist = floor(dist_real[aux_real]);                   // to convert for integer with resolution 1 c
-    printf("current distance %d mm",dist);                       // print new value
-    while(dist_real[aux_real]<range_min || dist_real[aux_real]>range_max){
+    printf("current distance %f mm",dist);                       // print new value
+    while(dist_real[aux_real]<range_min && dist_real[aux_real]>range_max){
         dist_real[aux_real++] = ReadSensor();                     // read value
         if(dist_real[aux_real]<range_min){                      // if distance <range_min then 
             printf(" Out of range %d \n", range_min);
@@ -100,7 +101,7 @@ void led(double val){
         PORTAbits.RA3 = 1;   
     }else {
         PORTAbits.RA3 = 0;                                     // force the led as '0'
-    }
+    } 
 
 }
 /* Interface for user interaction */
@@ -108,9 +109,10 @@ void interface(void){
         //variable declarations
     init_Ports();
     char user,user0;
-    int i;
-    double mean,max;
-
+    int i,converted;
+    double mean;
+    double max;
+    
     start_PWM();                                                // start function start PWM
     
     printf("\nPrefere use simulation or real values ? \n");     //choose real values with sensor PT100 or simulate values 
@@ -143,17 +145,19 @@ void interface(void){
         case '1':
             if(user0 == '1'){                                  // real values (sensor PT100)
                 dist_real[aux_real+1] = ReadSensor();
-                if( dist_real[aux_real] < range_min || dist_real[aux_real] > range_max ){
+                if(dist_real[aux_real] < range_min || dist_real[aux_real] > range_max ){
                     printf("Out of range[%d;%d]", range_min,range_max);  
                 }  
                 else{
                     puts("\n Instant distance : ");
-                    convert(dist_real[aux_real]);
-                    printf("%d mm \n",x); 
+                    converted = convert(dist_real[aux_real]);
+                    printf("%d mm \n",converted); 
+                    aux_real = aux_real +1;
                 }
             }else if(user0 == '0'){                            // simulate values 
                 puts("\n Instant simulate distance  : ");
-                printf("%f mm \n ",dist_sim[aux_sim]);  
+                printf("%f mm \n ",dist_sim[aux_sim]);
+                aux_sim = aux_sim +1;
             }
             break;
         case '2' :                                             // calculate the peak of temperature from startup   
@@ -164,17 +168,18 @@ void interface(void){
                         max = dist_real[i];                    // max refresh with the new distance
                     }                        
                 }
-            convert(max);
-            printf("|Peak distance ( from startup ): %d mm |\n", max);    
+            converted = convert(max);
+            printf("|Peak distance ( from startup ): %d mm |\n", converted);    
             }
-            else if(user0 == '0'){                              //for simulate values  
+            else if(user0 == '0'){                              // for simulate values  
                 max = dist_sim[0];                              // max = the first value of array 
                 for(i=1;i<aux_sim+1;i++){                       // i < number of positions
                     if(dist_sim[i]>max){                        // if atual value of distance is bigger then max
                         max= dist_sim[i];                       // max refresh with the new distance
                     }
                 }
-            printf("|Peak distance ( from startup ): %d mm |\n", max);    
+            converted = convert(max);
+            printf("|Peak distance ( from startup ): %d mm |\n", converted);    
             }    
             break;
         case '3':                                                // calculate the mean

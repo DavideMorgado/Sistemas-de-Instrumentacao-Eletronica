@@ -50,7 +50,7 @@ float ADC_OUT(void){
     float res;
     //create a filter digital
     for(i=0;i<elements;i++){
-        mean = mean + (ADC1BUF0 * 3.3) / 1023;  // Convert to 0..3.3V 
+        mean = mean + ADC1BUF0;  // Convert to 0.. 1023  
     }
     res = mean / elements;
     

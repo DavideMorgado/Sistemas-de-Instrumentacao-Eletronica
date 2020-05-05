@@ -17,9 +17,11 @@ void config_PWM(void){
 }
 
 double transf_function(double val){ 
-    double dist = (val-0.002)/ (0.00000782);
-    return dist;
+    double res = (0.00000782)*val + 0.002;
+    return res;
 }
+
+
 
 void set_PWM(int duty){
      OC3RS = (((PBCLOCK/1)/ freq_PWM) * duty) / PWM_steps;    
