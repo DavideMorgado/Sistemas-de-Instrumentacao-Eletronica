@@ -3,13 +3,12 @@
 #   - Davide Morgado   , MIEET,    84950
 #   - Guilherme Maniezo, MIEET,    84907
 
-Projeto 2 - Controle de Processo Térmico 
+Projeto 3 - Medição de Distância
 
-* Possui 10 ficheiros:
+* Possui  ficheiros:
  - ADC.C
  - Interface.c
  - main.c
- - PI_controller.c
  - Ports.c
  - PWM.c
  - Real.c
@@ -19,9 +18,10 @@ Projeto 2 - Controle de Processo Térmico
 
 Funções importantes para interpretação do código:
 * ReadSensor() -  Obtêm-se valores provenientes da ADC 
-* verification(int x)- De acordo com o valor de x vai controlar o sistema por intermédio do controlador proporcional integral, enviar o sinal do controlador para a entrada do pwm  e verificar o novo valor de temperatura. 
+* verification()- Serve para verificar se a distância está na gama pretendida
 * getch() - Lê um caracter
-* PI_controller(...) - Ajusta um valor temperatura num novo valor de temperatura desejado, de um modo proporcional e integral
 * init_sim() e simulate() - Funções desenvolvidas para simular a aquisação virtual de temperatura
-
-*** Para informação mais detalhada, ler o relatório associado, ProjetoA.pdf ***
+* transfer_funct(), conv_dist(), percentage() e resolution() - servem para converter o valor proveniente da ADC no inverso da distância, converter o inverso na distância, converter o valor lido de distancia em percentagem e escolher a resolução de 1mm
+* led() - para ligar o led quando está dentro da range
+*** Para informação mais detalhada, ler o relatório associado, ProjetoA.pdf 
+***

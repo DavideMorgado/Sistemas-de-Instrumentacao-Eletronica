@@ -10,13 +10,14 @@
 #define range_min 100
 
 /*global variables*/
-static double dist_sim[samples];         //used for simulated temperature values
-static double dist_real[samples];        //used for real temperature values
+static double dist_sim[samples];         //used for simulated distance values
+static double dist_real[samples];        //used for real distance values
 static int aux_real = 0;
 static int aux_sim = 0;
 static double u_real=0; 
 static double u_sim= 0;
 static int x,y;
+
 /*declare other functions of others files*/
 int set_PWM(int PWM_VAL);
 double PI_controller(double y, double r, double k, double Kp, double Ti);
@@ -66,44 +67,41 @@ void printMenu(void){
     printf("Option: \r");
 }
 
-
-void verification(void){
-    double dist;
-    dist_real[aux_real] = ReadSensor();                         // read, first, value of distance 
-    dist = floor(dist_real[aux_real]);                   // to convert for integer with resolution 1 c
-    printf("current distance %f mm",dist);                       // print new value
-    while(dist_real[aux_real]<range_min && dist_real[aux_real]>range_max){
-        dist_real[aux_real++] = ReadSensor();                     // read value
-        if(dist_real[aux_real]<range_min){                      // if distance <range_min then 
-            printf(" Out of range %d \n", range_min);
-            printf("Current distance %d mm",dist);            // print new value
-            PORTAbits.RA3 = 0;                                  // If the led is desative it is because the temperature is out the range
-        }
-        else if(dist_real[aux_real]>range_max){                 // if distance <range_max then 
-            printf(" Out of range %d \n", range_max);
-            printf("Current distance %d mm",dist);            // print new value
-            PORTAbits.RA3 = 0;                                  // If the led is desative it is because the temperature is out the range
-        }
-        PORTAbits.RA3 = 1;                                  // If the led is active it is because the temperature is within the range
-    }
-}
-
-int convert(double val){
-    int  x = floor(val);            // to convert for integer with resolution 1 mm
+int resolution(double val){
+    int  x = floor(val);                                          // to convert for integer with resolution 1 mm
     return x;
 }
 
 void led(double val){
     if(val >= range_min) {
-        PORTAbits.RA3 = 1;                                      // If the led is active it is because the distance is within the range
+        PORTAbits.RA3 = 1;                                       // If the led is active it is because the distance is within the range
     }
     else if(val <= range_max){
         PORTAbits.RA3 = 1;   
     }else {
-        PORTAbits.RA3 = 0;                                     // force the led as '0'
+        PORTAbits.RA3 = 0;                                       // force the led as '0'
     } 
-
 }
+
+void verification(void){
+    int dist;
+    dist_real[aux_real] = ReadSensor();                          // read, first, value of distance 
+    dist = resolution(dist_real[aux_real]);                      // to convert for integer with resolution 1 mm
+    //printf("current distance %f mm",dist);                       // print new value
+    while(dist_real[aux_real]<range_min && dist_real[aux_real]>range_max){
+        dist_real[aux_real++] = ReadSensor();                    // read value
+        if(dist_real[aux_real]<range_min){                       // if distance <range_min then 
+            printf(" Out of range %d \n", range_min);
+            printf("Current distance %d mm",dist);               // print new value
+        }
+        else if(dist_real[aux_real]>range_max){                  // if distance <range_max then 
+            printf(" Out of range %d \n", range_max); 
+            printf("Current distance %d mm",dist);               // print new value
+        }
+        led(dist_real[aux_real]);
+    }
+}
+
 /* Interface for user interaction */
 void interface(void){
         //variable declarations
@@ -120,7 +118,7 @@ void interface(void){
     printf("| 1 : Real values? \n");
     user0 = getch();
     if(user0 == '0'){
-        dist_sim[aux_sim] = init_sim();                         // init the signal pwn to ajust the temperature into the range 
+        dist_sim[aux_sim] = init_sim();                         // init the signal to ajust the distance into the range 
     }else if(user0 =='1'){
         printf("Mode : Real values selected\n");
         verification();
@@ -150,7 +148,7 @@ void interface(void){
                 }  
                 else{
                     puts("\n Instant distance : ");
-                    converted = convert(dist_real[aux_real]);
+                    converted = resolution(dist_real[aux_real]);
                     printf("%d mm \n",converted); 
                     aux_real = aux_real +1;
                 }
@@ -160,7 +158,7 @@ void interface(void){
                 aux_sim = aux_sim +1;
             }
             break;
-        case '2' :                                             // calculate the peak of temperature from startup   
+        case '2' :                                             // calculate the peak of distance from startup   
             if(user0 == '1'){                                               
                 max = dist_real[0];                            // max = the first value of array 
                 for(i=1;i<aux_real+1;i++){                     // i < number of positions
@@ -168,7 +166,7 @@ void interface(void){
                         max = dist_real[i];                    // max refresh with the new distance
                     }                        
                 }
-            converted = convert(max);
+            converted = resolution(max);
             printf("|Peak distance ( from startup ): %d mm |\n", converted);    
             }
             else if(user0 == '0'){                              // for simulate values  
@@ -178,7 +176,7 @@ void interface(void){
                         max= dist_sim[i];                       // max refresh with the new distance
                     }
                 }
-            converted = convert(max);
+            converted = resolution(max);
             printf("|Peak distance ( from startup ): %d mm |\n", converted);    
             }    
             break;

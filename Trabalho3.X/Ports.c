@@ -7,7 +7,7 @@ void init_Ports(void){
 	/* Configure RA3 and RC1 (led 4 and led 5) as Output */
     TRISAbits.TRISA3 = 0;
     TRISCbits.TRISC1 = 0;
-    /* Configure pin AN0 as Input, for Read PT100 */
+    /* Configure pin AN0 as Input, for sensor*/
     TRISAbits.TRISA0 = 1;
     
 	/*define initial values for RA3 and RC1*/

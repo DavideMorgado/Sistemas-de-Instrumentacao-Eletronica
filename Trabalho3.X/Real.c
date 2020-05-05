@@ -11,7 +11,12 @@
 /*declare other functions of others files*/
 void  start_ADC(void);
 float ADC_OUT(void);
-float transf_function(float val);
+
+double transf_function(double val){ 
+    double res = (0.00000782)*val + 0.002;
+    return res;
+}
+
 double conv_dist(double val){
     double dist = 1/val;
     return dist;
@@ -22,7 +27,7 @@ double percentage(double val){                          //to convert the distanc
     return res;
 }
 
-/* Function ReadSensor is used to obtain the real value of temperature from PT100*/
+/* Function ReadSensor is used to obtain the real value of distance*/
 double ReadSensor(void){
    // Variable declarations;
     double dist,inv;

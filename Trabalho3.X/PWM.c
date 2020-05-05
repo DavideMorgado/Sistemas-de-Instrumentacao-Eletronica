@@ -16,13 +16,6 @@ void config_PWM(void){
     OC3CONbits.ON = 1;           // Enable OC3
 }
 
-double transf_function(double val){ 
-    double res = (0.00000782)*val + 0.002;
-    return res;
-}
-
-
-
 void set_PWM(int duty){
      OC3RS = (((PBCLOCK/1)/ freq_PWM) * duty) / PWM_steps;    
 }
