@@ -17,14 +17,16 @@ static int aux_sim = 0;
 static double u_real=0; 
 static double u_sim= 0;
 static int x,y;
-static int rotation = 0;
+static int direction = 0;
+static double k= 0.5,Kp=2,Ti = 0.2;
 
 /*declare other functions of others files*/
-int set_PWM(int PWM_VAL);
+int set_PWMA1(int PWM_VAL);
+int set_PWMA2(int PWM_VAL);
 double PI_controller(double y, double r, double k, double Kp, double Ti);
 float simulate(int value); 
 int init_sim(void);
-float ReadSensor(void);
+float ReadRPM(int rpm_desired);
 void start_PWM(void);
 void init_Ports(void);
 
@@ -87,59 +89,66 @@ void led(double val){
     } 
 }
 
-void verification(int x){
-        double speed_desired;
-        speed_real[aux_real] = ReadSensor();              // read, first, value of speed 
-        x = floor(speed_real[aux_real]);                  // to convert for integer with resolution 1 c
-        printf("current speed %d C",x);                     // print new value
-        if(x == 0){                                             // x == 0 when we want heet or cool the resistor, in inicial case
-            while(speed_real[aux_real]<range_min){        // if <range_min then 
-                printf(" Out of range [40;70]\n");
-                u_real = PI_controller(speed_real[aux_real],speed_real[aux_real]+1,0.5,2,0.2);      //send to the function PI_Controller 
-                set_PWM(u_real);                                // send signal u for pwm, to adjust the temperature
-                aux_real = aux_real +1;                         // increase index
-                speed_real[aux_real] = ReadSensor();      // read new value for new index
-                x = floor(speed_real[aux_real]);          // to convert for integer with resolution 1 ºc
-                printf("Current temperature %d C",x);             // print new value
-                PORTAbits.RA3 = 0;                              // If the led is desative it is because the temperature is out the range
-            }
-            while(speed_real[aux_real]>range_max){               // while temperature <range_max then 
-                printf(" Out of range [40;70]\n");
-                u_real = PI_controller(speed_real[aux_real],speed_real[aux_real]-1,0.5,2,0.2);      //send to the function PI_Controller 
-                set_PWM(u_real);                                // send signal u for pwm, to adjust the temperature
-                aux_real = aux_real +1;                         // increase index
-                speed_real[aux_real] = ReadSensor();      // read new value for new index
-                 x = floor(speed_real[aux_real]);         // to convert for integer with resolution 1 ºc
-                printf("Current temperature %d C",x);             // print new value
-                PORTAbits.RA3 = 0;                              // If the led is desative it is because the temperature is out the range
-            }
-            PORTAbits.RA3 = 1;                                  // If the led is active it is because the temperature is within the range
-        }else if (x == 1){                                      // x == 1 when we want heet the resistor  
-            speed_desired = speed_real[aux_real]+1;
-            while(speed_real[aux_real]<speed_desired){
-                printf("| Heating Resistor |\n");
-                u_real = PI_controller(speed_real[aux_real],speed_desired,0.5,2,0.2);
-                set_PWM(u_real);
-                u_real = u_real +1;                             // increase index
-                speed_real[aux_real] = ReadSensor();      // read new value for new index
-            }
-        }else if( x == 2){                                      // x == 2 when we want cool the resistor  
-            speed_desired = speed_real[aux_real]-1;
-            while(speed_real[aux_real]>speed_desired){
-                printf("| Cool Resistor |\n");
-                u_real = PI_controller(speed_real[aux_real],speed_desired,0.5,2,0.2);
-                set_PWM(u_real);
-                u_real = u_real +1;                             // increase index
-                speed_real[aux_real] = ReadSensor();      // read new value for new index
-            }
+void verification(int x, char rpm_chosed) {
+    double speed_desired;
+    speed_real[aux_real] = ReadRPM(rpm_chosed);
+    if (x == 0) {                                     // x == 0 when we want iniciate the system
+        while (speed_real[aux_real] < range_min){    // if <range_min then 
+            printf(" Out of range [10;50]\n");
+            u_real = PI_controller(speed_real[aux_real], speed_real[aux_real] + 1, k, Kp, Ti); //send to the function PI_Controller 
+            set_PWMA1(u_real);                        // send signal u for pwm, to adjust the temperature
+            aux_real = aux_real + 1;                  // increase index
+            speed_real[aux_real] = ReadRPM(aux_real); // read new value for new index
+            x = floor(speed_real[aux_real]);          // to convert for integer with resolution 1 ºc
+            printf("Current speed %d C", x);          // print new value
+            PORTAbits.RA3 = 0;                        // If the led is desative it is because the temperature is out the range
         }
+        while (speed_real[aux_real] > range_max){    // while temperature <range_max then 
+            printf(" Out of range [10;50]\n");
+            u_real = PI_controller(speed_real[aux_real], speed_real[aux_real] - 1, k, Kp, Ti); //send to the function PI_Controller 
+            set_PWMA1(u_real);                          // send signal u for pwm, to adjust the temperature
+            aux_real = aux_real + 1;                  // increase index
+            speed_real[aux_real] = ReadRPM(aux_real); // read new value for new index
+            x = floor(speed_real[aux_real]);          // to convert for integer with resolution 1 ºc
+            printf("Current speed %d C", x);          // print new value
+            PORTAbits.RA3 = 0;                        // If the led is desative it is because the temperature is out the range
+        }
+        PORTAbits.RA3 = 1;                            // If the led is active it is because the temperature is within the range
+    } else if (x == 1) {                              // x == 1 when we want more speed
+        speed_desired = speed_real[aux_real] + 1;
+        while (speed_real[aux_real] < speed_desired) {
+            printf("| More Speed |\n");
+            u_real = PI_controller(speed_real[aux_real], speed_desired, k, Kp, Ti);
+            set_PWMA1(u_real);
+            u_real = u_real + 1;                      // increase index
+//            speed_real[aux_real] = ReadRPM(); // read new value for new index
+        }
+    } else if (x == 2) { // x == 2 when we want less speed
+        speed_desired = speed_real[aux_real] - 1;
+        while (speed_real[aux_real] > speed_desired) {
+            printf("| Less Speed |\n");
+            u_real = PI_controller(speed_real[aux_real], speed_desired, k, Kp, Ti);
+            set_PWMA1(u_real);
+            u_real = u_real + 1; // increase index
+//            speed_real[aux_real] = ReadSensor(); // read new value for new index
+        }
+    }
 }
+void __ISR Interrupt(void){
+    int count = 0;
+    if ( direction == 1){
+        count++;
+    }else{
+        count--;
+    }
+}
+
 
 /* Interface for user interaction */
 void interface(void){
         //variable declarations
     init_Ports();
-    char user,user0;
+    char user,user0,rmp_chosed;
     int i,max;
     double mean;
 
@@ -149,13 +158,15 @@ void interface(void){
     printf("| 0 : Simulation ? \n");
     printf("| 1 : Real values? \n");
     user0 = getch();
+    printf("What value of RPM you desired?");
+    rmp_chosed = getch();
     if(user0 == '0'){
-        speed_si[aux_sim] = init_sim();                  // init the signal pwn to ajust the temperature into the range 
-        if(speed_si[aux_sim] > 40) {
+        speed_si[aux_sim] = init_sim(rmp_chosed);                  // init the signal pwn to ajust the temperature into the range 
+        if(speed_si[aux_sim] > range_min) {
             PORTAbits.RA3 = 1;                                  // If the led is active it is because the temperature is within the range
         }
     }else if(user0 =='1'){
-        verification(0);
+        verification(0,rmp_chosed);
     }else{                                                      // char invalid, repeat 
         puts("Invalid entry");
         speed_si[aux_sim] = 0;
@@ -176,16 +187,17 @@ void interface(void){
         switch(user){
         case '0':                                              // stop system
             if(user0 == '1'){ 
-               set_PWM(0);
+               set_PWMA1(0);
+               set_PWMA2(0);                                   // stop motor
             }else if(user0 == '0'){
                speed_si[aux_sim] = 0;
             }
             break;
         case '1':
-            if(user0 == '1'){                                  // real values (sensor PT100)
-                speed_real[aux_real+1] = ReadSensor();
+            if(user0 == '1'){                                  // real values 
+                speed_real[aux_real+1] = readRPM();
                 puts("\n Instant speed : ");
-                x = floor(speed_real[aux_real]);         // to convert for integer with resolution 1 ºc
+                x = floor(speed_real[aux_real]);               // to convert for integer with resolution 1 ºc
                 printf("%d C \n",x);  
             }else if(user0 == '0'){                            // simulate values 
                 puts("\n Instant simulate speed  : ");
@@ -193,7 +205,7 @@ void interface(void){
             }
             break;
         case '2' :                                         
-            if(user0 == '1'){                                  // real values (sensor PT100)
+            if(user0 == '1'){                                  // real values 
                 verification(1);
             }else if(user0 == '0'){                            // simulate values 
                 printf("|Increase speed|");
@@ -266,7 +278,7 @@ void interface(void){
             }
             break;
         case '7':
-            puts("\nThe main objective of this project is to create circuits, \n that controlled from the user, can heat a resistance \n in a given temperature range and with specifications \n explicit in the report. ");
+            puts("\nThe main objective of this project is to create circuits, \n that controlled from the user, can increase or decrease RPM of motor \n More explicitation in the report or Readme.md . ");
             break;
         case '8':
             printMenu();
