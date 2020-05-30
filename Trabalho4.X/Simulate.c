@@ -19,7 +19,7 @@ int init_sim(char rpm){
     int aux=0;
     int i=0;
     double rpm_si[100];
-    rpm_si[i] = simulate(rpm);       // for simulate :    float temperature = simulate(0);       
+    rpm_si[i] = simulate(rpm);          // for simulate :    float temperature = simulate(0);       
                                         // for use real sensor: float temperature = ReadSensor()
     while(rpm_si[i] < 40){
 /* Code valid for real simulation, that's why we commented on this code, but we understand that 3 lines would be necessary to increase the temperature
