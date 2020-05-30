@@ -33,7 +33,7 @@ double transf_function(double val){
 }
 */
 
-void set_PWMA1(int rpm_actual){
+void set_PWM(int rpm_actual){
     rpm_ant[i+1]= rpm_actual;
     updateOC = PI_controller(rpm_ant[i], rpm_actual, k, Kp, Ti);
     i++;
