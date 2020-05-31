@@ -10,6 +10,8 @@
 int updateOC = 0;
 int i = 0;
 int rpm_ant [1000];
+static double k = 0.5,Kp=2,Ti = 0.2;
+double PI_controller(double y, double r, double k, double Kp, double Ti);
 
 void config_PWM(void){
    // Set OC3 - chipKIT Pin 6 
