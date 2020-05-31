@@ -13,7 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "uart.h" 
-
+#define range_min 10
+#define range_max 50
 /*global variables*/
 static double integral_part;
 static double u;
@@ -22,11 +23,11 @@ double PI_controller(double y, double r, double k, double Kp, double Ti)
 {
     /*Variables*/
     double e;
-    /* Temperature in range [40,70] ºC*/
-    if( r < 40){
-        r = 40;
-    }else if ( r > 70){
-        r = 70;
+    /* RPM in range [range_min,range_max] rpm*/
+    if( r < range_min){
+        r = range_min;
+    }else if ( r > range_max){
+        r = range_max;
     }else{
     }
     e = r - y;                                  //
