@@ -41,12 +41,12 @@ void config_Timer4(int freq){           // used to acquire a time base ( used wi
     T4CONbits.TCS = 0;                
     IFS0bits.T4IF = 0;                  //Reset interrupt flag
     IPC4bits.T4IP = 7;                  // set interrupt priority (1..7)
-    IEC0bits.T4IE = 1;                  //Enable T2 interrupts, 0 -> polling
+    IEC0bits.T4IE = 1;                  //Enable T4 interrupts, 0 -> polling
     // Timer period configuration
     T4CONbits.TCKPS = TPS_256;          //Select pre-scaler
-                                        //Divide by 256 pre-scaler - Timer 2 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
+                                        //Divide by 256 pre-scaler - Timer 4 contains this prescaler: 1,2,4,8,16,36,64,256 (correspond to the number 7)
     T4CONbits.T32 = 0;                  // 16 bit timer operation      
     TMR4 = 0; 
-    PR4 = PBCLOCK/(Presc_val*freq) - 1; // defines timer frequency equal to Timer2_freq                                  
+    PR4 = 15624;                       // defines timer frequency equal to Timer4_freq                                  
     T4CONbits.TON = 1;                  // Start the timer
 }
