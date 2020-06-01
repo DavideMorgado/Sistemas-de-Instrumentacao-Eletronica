@@ -19,7 +19,8 @@ double ConvDegree(int count){
 double ReadRPM(int count){
    // Variable declarations;
     double rpm_real;
-    rpm_real = (count * 1 ) / (420);
+    rpm_real = (count * 1 ) / (420);     // count ---- x rpm
+                                         // 420   ---- 1 rpm
     printf("RPM: %d", rpm_real);         // print
     return rpm_real;
 }

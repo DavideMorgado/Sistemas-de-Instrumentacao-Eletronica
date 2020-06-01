@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include "uart.h" 
 
-float simulate(int value){ 
-    float rpm_si[100];
+double simulate(int value){ 
+    double rpm_si[100];
     int i = 0;
     rpm_si[i++] = value;
     int j,k;
@@ -21,19 +21,19 @@ int init_sim(int rpm){
     double rpm_si[100];
     rpm_si[i] = simulate(rpm);          // for simulate :    float temperature = simulate(0);       
                                         // for use real sensor: float temperature = ReadSensor()
-    while(rpm_si[i] < 40){
+    while(rpm_si[i] < 10){
 /* Code valid for real simulation, that's why we commented on this code, but we understand that 3 lines would be necessary to increase the temperature
         u = PI_controller(temperature_si[i],temperature_si[i]+1,0.5,2,0.2);      //send to the function PI_Controller 
         set_PWM(u);     // just for real values 
 */           
         printf("|------------------|");
-        printf("| Heating Resistor |");
-        printf("... %f C\n", rpm_si[i++]);
+        printf("| Increases rpms|");
+        printf("... %f rpm \n", rpm_si[i++]);
         rpm_si[i] = simulate(aux);
     }
-    if(rpm_si[i] >= 40){
+    if(rpm_si[i] >= 50){
         printf("\n|------------------|\n");
-        printf("| Inside range|\n");         
+        printf("| Inside range |\n");         
     }  
     return rpm_si[i];
 }

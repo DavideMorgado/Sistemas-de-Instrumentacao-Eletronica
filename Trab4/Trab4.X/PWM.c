@@ -5,7 +5,7 @@
 
 #define SYSCLK      80000000L               // System clock frequency, in Hz
 #define PBCLOCK     40000000L               // Peripheral Bus Clock frequency, in Hz
-#define freq_PWM    2000   
+#define freq_PWM    2001 
 #define PWM_steps   1000      
 int updateOC = 0;
 int i = 0;
