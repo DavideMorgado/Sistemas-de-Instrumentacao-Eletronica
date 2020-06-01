@@ -87,7 +87,7 @@ void led(double val){
     } 
 }
 
- void __ISR (_EXTERNAL_2_VECTOR, IPL5SRS) ExtISR(void){          //check channel B
+ void __ISR (_EXTERNAL_1_VECTOR, IPL5SRS) ExtISR(void){          //check channel B
     PORTDbits.RD0 = 1;                                           //force value = 1 to can test and present results
     if(PORTDbits.RD1){
         direction = 1;
@@ -101,7 +101,7 @@ void led(double val){
     degree = ConvDegree(count);
     printf("RPM: %d\n", act_rpm);                               // print
     printf("Degree: %d\n", degree);
-    speed_real[aux_real] = act_rpm;
+    speed_real[aux_real+1] = act_rpm;
     aux_real++;
     IFS0bits.INT1IF = 0;                                        // Reset interrupt flag
 }
@@ -127,15 +127,17 @@ void interface(void){
     printf("\nPrefere use simulation or real values ? \n");     //choose real values with sensor PT100 or simulate values 
     printf("| 0 : Simulation ? \n");
     printf("| 1 : Real values? \n");
-    user0 = getch();
+    
+    speed_real[aux_real] = 10;
+    aux_real++;
+    user0 = getch(); 
     if(user0 == '0'){
         speed_si[aux_sim] = init_sim(0);                       // init the signal pwn to ajust the temperature into the range 
         if(speed_si[aux_sim] > range_min) {
             PORTAbits.RA3 = 1;                                 // If the led is active it is because the temperature is within the range
         }
     }else if(user0 =='1'){
-        speed_real[aux_real] = 10;
-        aux_real++;
+
         set_PWM(speed_real[aux_real]);
     }
     printMenu();                                               // prints interface 
@@ -163,7 +165,6 @@ void interface(void){
             if(user0 == '1'){                                   // real values - increse rpm
                 printf("| 1 - Read RPM |\n");
                 speed_real[aux_real] = act_rpm;
-                aux_real++;
                 //x = floor(speed_real[aux_real]);              // to convert for integer with resolution 
                 printf("\n Instant %d rpm \n",x);  
             }else if(user0 == '0'){                             // simulate values 
@@ -176,9 +177,12 @@ void interface(void){
             if(user0 == '1'){                                   // real values  - increase rpm (+1)
                 speed_real[aux_real+1] = speed_real[aux_real]+1;
                 aux_real++;
-                printf("| 2 - Increase RPM ( +1 ) -> %f |\n",speed_real[aux_real]);
+                printf("| 2 - Increase RPM ( +1 ) |\n");
                 set_PWM(speed_real[aux_real]+1);
-                
+                if(speed_real[aux_real-1]+1 >range_max ){
+                    speed_real[aux_real] = speed_real[aux_real-1];    // dont refresh
+                    printf(" Out of range [%d;%d]\n",range_min,range_max);
+                }
             }else if(user0 == '0'){                             // simulate values 
                 printf("| 2 - Increase RPM ( +1 ) |\n");
                 aux_sim = aux_sim +1;                                         //refresh the index (aux_sim)
@@ -196,8 +200,12 @@ void interface(void){
             if(user0 == '1'){                                    // real values 
                 speed_real[aux_real+1] = speed_real[aux_real]-1;
                 aux_real++;
-                printf("| 2 - Decrease RPM ( -1 ) -> %f |\n",speed_real[aux_real]);
+                printf("| 2 - Decrease RPM ( -1 ) |\n");
                 set_PWM(speed_real[aux_real]-1);
+                if(speed_real[aux_real-1]+1 <range_min ){
+                    speed_real[aux_real] = speed_real[aux_real-1];    // dont refresh
+                    printf(" Out of range [%d;%d]\n",range_min,range_max);
+                }
             }else if(user0 == '0'){                              // simulate values 
                 printf("| 2 - Decrease RPM |\n");
                 aux_sim = aux_sim +1;                            //refresh the index (aux_sim)
