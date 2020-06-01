@@ -52,8 +52,8 @@ void set_PWM(int rpm_actual){
             OC2RS = 0;
             OC3RS = updateOC;
         }
-        printf("OC2RS = %d, resolution = %d \n",OC2RS,PR2);
-        printf("OC3RS = %d, resolution = %d \n",OC3RS,PR3);
+        printf("OC2RS = %d, resolution = %d \n",OC2RS,PWM_steps);
+        printf("OC3RS = %d, resolution = %d \n",OC3RS,PWM_steps);
     }    
 }
 

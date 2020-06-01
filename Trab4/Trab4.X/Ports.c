@@ -18,7 +18,7 @@ void init_Ports(void){
     
     // Set RD1 as digital output - PWM - correspond OC2       - is to A1
     TRISDbits.TRISD1 = 0;
-    PORTDbits.RD1 = 0;
+    PORTDbits.RD1 = 1;
     
     // Set RD2 as digital output - PWM - correspond OC3       - is to A2
     TRISDbits.TRISD2 = 0;

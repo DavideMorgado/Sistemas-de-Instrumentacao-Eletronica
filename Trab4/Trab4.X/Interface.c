@@ -18,7 +18,7 @@ static double u_real=0;
 static double u_sim= 0;
 static int x,y;
 static int direction = 1;                 // initial diretion is positive 
-static int count = 0, act_rpm,user_rpm,degree;
+static int count = 0, act_rpm,user_rpm,degree,cnt_time;
 static double pos_angular;
 /*declare other functions of others files*/
 int set_PWM(int rpm);
@@ -87,21 +87,28 @@ void led(double val){
     } 
 }
 
-void __ISR (_EXTERNAL_1_VECTOR, IPL5SRS) ExtISR(void){
-    //check channel B
-    PORTDbits.RD0 = 1;          //force value = 1 to can test and present results
-    if(PORTDbits.RD0){
+ void __ISR (_EXTERNAL_2_VECTOR, IPL5SRS) ExtISR(void){          //check channel B
+    PORTDbits.RD0 = 1;                                           //force value = 1 to can test and present results
+    if(PORTDbits.RD1){
         direction = 1;
         count = count +1; 
     }else{
         direction = -1;
         count = count -1;
     }
-    act_rpm = ReadRPM(count);
+    act_rpm = ReadRPM(cnt_time);
+    cnt_time = 0;
     degree = ConvDegree(count);
-    printf("RPM: %d\n", act_rpm);         // print
+    printf("RPM: %d\n", act_rpm);                               // print
     printf("Degree: %d\n", degree);
-    IFS0bits.INT1IF = 0;                  // Reset interrupt flag
+    speed_real[aux_real] = act_rpm;
+    aux_real++;
+    IFS0bits.INT1IF = 0;                                        // Reset interrupt flag
+}
+
+void __ISR (_TIMER_4_VECTOR, IPL7AUTO) T4Interrupt(void){
+    cnt_time++;
+    IFS0bits.INT2IF = 0;                                        // Reset interrupt flag
 }
 
 /* Interface for user interaction */
@@ -127,10 +134,12 @@ void interface(void){
             PORTAbits.RA3 = 1;                                 // If the led is active it is because the temperature is within the range
         }
     }else if(user0 =='1'){
-        set_PWM(10);
+        speed_real[aux_real] = 10;
+        aux_real++;
+        set_PWM(speed_real[aux_real]);
     }
     printMenu();                                               // prints interface 
-    user = 'a';
+    user = 'x';
     while(user != '9'){                                        // when user press number 5 the system out
             //active led 
         if(user0 == '1'){    
@@ -143,54 +152,63 @@ void interface(void){
         switch(user){
         case '0':                                               // stop system
             if(user0 == '1'){ 
+               printf("0 - STOP System\n");
                set_PWM(0);                                      // stop motor
             }else if(user0 == '0'){
+               printf("0 - STOP System\n");
                speed_si[aux_sim] = 0;
             }
             break;
         case '1':
-            if(user0 == '1'){                                   // real values 
-                speed_real[aux_real+1] = ReadRPM(speed_real[aux_real]);
+            if(user0 == '1'){                                   // real values - increse rpm
+                printf("| 1 - Read RPM |\n");
+                speed_real[aux_real] = act_rpm;
+                aux_real++;
                 //x = floor(speed_real[aux_real]);              // to convert for integer with resolution 
                 printf("\n Instant %d rpm \n",x);  
             }else if(user0 == '0'){                             // simulate values 
+                printf("| 1 - Read RPM |\n");
                 puts("\n Instant simulate speed  : ");
                 printf("%1f rpm \n ",speed_si[aux_sim]);  
             }
             break;
         case '2' :                                          
-            if(user0 == '1'){                                   // real values 
-                speed_real[aux_real++] = speed_real[aux_real]+1;
-                set_PWM(speed_real[aux_real]);
+            if(user0 == '1'){                                   // real values  - increase rpm (+1)
+                speed_real[aux_real+1] = speed_real[aux_real]+1;
+                aux_real++;
+                printf("| 2 - Increase RPM ( +1 ) -> %f |\n",speed_real[aux_real]);
+                set_PWM(speed_real[aux_real]+1);
                 
             }else if(user0 == '0'){                             // simulate values 
-                printf("|Increase speed|");
+                printf("| 2 - Increase RPM ( +1 ) |\n");
                 aux_sim = aux_sim +1;                                         //refresh the index (aux_sim)
                 if(speed_si[aux_sim-1]+1 >range_max ){
                     speed_si[aux_sim] = speed_si[aux_sim-1];    // dont refresh
-                    printf(" Out of range [10;50]\n");
+                    printf(" Out of range [%d;%d]\n",range_min,range_max);
                 }else{ 
                     speed_si[aux_sim] = speed_si[aux_sim-1]+1; //refresh the array
                     PORTAbits.RA3 = 1;                         // If the led is active it is because the temperature is within the range
                 }
-                printf("New speed: %f",speed_si[aux_sim]);
+                printf("New value of RPMs: %f",speed_si[aux_sim]);
             }
             break;
         case '3' :     
             if(user0 == '1'){                                    // real values 
-                speed_real[aux_real++] = speed_real[aux_real]-1;
-                set_PWM(speed_real[aux_real]);
+                speed_real[aux_real+1] = speed_real[aux_real]-1;
+                aux_real++;
+                printf("| 2 - Decrease RPM ( -1 ) -> %f |\n",speed_real[aux_real]);
+                set_PWM(speed_real[aux_real]-1);
             }else if(user0 == '0'){                              // simulate values 
-                printf("| Decrease Speed |");
+                printf("| 2 - Decrease RPM |\n");
                 aux_sim = aux_sim +1;                            //refresh the index (aux_sim)
                 if(speed_si[aux_sim-1]-1 <range_min ){
                     speed_si[aux_sim] = speed_si[aux_sim-1];     // dont refresh
-                    printf(" Out of range [10;50]\n");
+                    printf(" Out of range [%d;%d]\n",range_min,range_max);
                 }else{
                     speed_si[aux_sim] = speed_si[aux_sim-1]-1;   //refresh the array
                     PORTAbits.RA3 = 1;                           // If the led is active it is because the temperature is within the range
                 }
-                printf("New speed: %f",speed_si[aux_sim]);
+                printf("New value of RPMs: \n%f",speed_si[aux_sim]);
             }
             break;  
         case '4' :                                          // calculate the peak of temperature from startup   
@@ -201,7 +219,7 @@ void interface(void){
                         max = speed_real[i];                // max refresh with the new temperature
                     }                        
                 }
-            printf("|Peak speed ( from startup ): %d rpm |\n", max);    
+            printf("| 4 - Peak speed ( from startup ): %d rpm |\n", max);    
             }else if(user0 == '0'){                         //for simulate values  
                 max = speed_si[0];                          // max = the first value of array 
                 for(i=1;i<aux_sim+1;i++){                   // i < number of positions
@@ -209,7 +227,7 @@ void interface(void){
                         max= speed_si[i];                       // max refresh with the new temperature
                     }
                 }
-            printf("|Peak speed ( from startup ): %d C |\n", max);    
+            printf("| 4 - Peak speed ( from startup ): %d rpm |\n", max);    
             }    
             break;
         case '5':                                           // calculate the mean
@@ -219,7 +237,7 @@ void interface(void){
                     mean = mean + speed_real[i];
                 }
                 mean = mean / (aux_real +1 );
-                printf("|Mean speed ( from startup ): %f rpm |\n", mean);    
+                printf("| 5 - Mean speed ( from startup ): %f rpm |\n", mean);    
             }
             else if(user0 == '0'){
                 mean = speed_si[0];
@@ -227,24 +245,26 @@ void interface(void){
                     mean = mean + speed_si[i];
                 }
                 mean = mean /(aux_sim +1);
-                printf("|Mean speed ( from startup ): %f rpm |\n", mean);    
+                printf("| 5 - Mean speed ( from startup ): %f rpm |\n", mean);    
             }
             break;
         case '6':   
-            pos_angular = 0.5 / count; 
-            printf("Angular Position: %f\n", pos_angular);
+            pos_angular = 0.5/ count; 
+            printf("| 6 - Angular Position: %f |\n", pos_angular);
             break;
         case '7':
             direction = -direction;
-            printf("Direction changed, now is %d",direction);
+            printf("| 7 - Direction changed |\n Now is: %d \n",direction);
             break;
         case '8':
-            puts("\nThe main objective of this project is to create circuits, \n that controlled from the user, can increase or decrease RPM of motor \n More explicitation in the report or Readme.md .\n\n ");
+            printf("| 8 - More info and repeat print menu |\n\n");
+            puts("The main objective of this project is to create circuits, \n that controlled from the user, can increase or decrease RPM of motor \n More explicitation in the report or Readme.md .\n\n ");
             printMenu();
             break;
         case '9':
+            puts("| 9 - Exit | \n");
             puts("--Finished--");
-            puts("To continue reset the system");
+            puts(" To continue reset the system ");
             exit(0);
             break;
         }

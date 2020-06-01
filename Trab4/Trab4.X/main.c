@@ -13,7 +13,7 @@
 #include "uart.h" 
 #include "config_bits.h"
 
-#define timer_freq          250
+#define timer_freq          325
 #define freq_PWM           2000   
 #define SYSCLK        80000000L               // System clock frequency, in Hz
 #define PBCLOCK       40000000L               // Peripheral Bus Clock frequency, in Hz

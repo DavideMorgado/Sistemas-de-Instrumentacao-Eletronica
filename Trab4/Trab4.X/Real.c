@@ -5,21 +5,21 @@
 #include <stdlib.h>
 #include "uart.h" 
 
-/*declare other functions of others files*/
-void start_ADC(void);
-float ADC_OUT(void);
-float transf_function(float val);
-
 double ConvDegree(int count){
-    double degree = (count *360)/420;
+    double degree = (count *360)/420;   
+    if(degree >= 360){
+        degree = 0;
+    }else if(degree <= -360){
+        degree = 0;
+    }
     printf("Degree: %d", degree);
     return degree;
 }
 
-double ReadRPM(int count){
+double ReadRPM(int time){
    // Variable declarations;
     double rpm_real;
-    rpm_real = (count * 1 ) / (420);     // count ---- x rpm
+    rpm_real = (60) / (time * 420);     // count ---- x rpm
                                          // 420   ---- 1 rpm
     printf("RPM: %d", rpm_real);         // print
     return rpm_real;
