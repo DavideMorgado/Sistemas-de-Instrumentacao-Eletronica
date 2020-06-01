@@ -65,7 +65,7 @@ void printMenu(void){
     printf("| 3 : Decrease value of speed               \t\t|\n");
     printf("| 4 : Peak speed ( from startup )           \t\t|\n");
     printf("| 5 : Mean speed ( from startup )           \t\t|\n");
-    printf("| 6 : Show angular velocity                 \t\t|\n");
+    printf("| 6 : Show angular positon                  \t\t|\n");
     printf("| 7 : Change direction                      \t\t|\n");
     printf("| 8 : Info about the system and repeat menu \t\t|\n");
     printf("| 9 : Exit                                  \t\t|\n");
@@ -89,7 +89,7 @@ void led(double val){
 
  void __ISR (_EXTERNAL_1_VECTOR, IPL5SRS) ExtISR(void){          //check channel B
     PORTDbits.RD0 = 1;                                           //force value = 1 to can test and present results
-    if(PORTDbits.RD1){
+    if(PORTDbits.RD0){
         direction = 1;
         count = count +1; 
     }else{
