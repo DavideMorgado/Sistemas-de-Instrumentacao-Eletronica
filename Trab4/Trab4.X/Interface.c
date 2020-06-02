@@ -101,7 +101,7 @@ void led(double val){
     degree = ConvDegree(count);
     printf("RPM: %d\n", act_rpm);                               // print
     printf("Degree: %d\n", degree);
-    speed_real[aux_real+1] = act_rpm;
+    speed_real[aux_real+1] = 10;//act_rpm;
     aux_real++;
     IFS0bits.INT1IF = 0;                                        // Reset interrupt flag
 }
