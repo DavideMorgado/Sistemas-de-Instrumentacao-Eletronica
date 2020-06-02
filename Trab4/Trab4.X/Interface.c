@@ -18,14 +18,14 @@ static double u_real=0;
 static double u_sim= 0;
 static int x,y;
 static int direction = 1;                 // initial diretion is positive 
-static int count = 0, act_rpm,user_rpm,degree,cnt_time;
-static double pos_angular;
+static int count = 0,user_rpm,degree,cnt_time;
+static double pos_angular,act_rpm;
 /*declare other functions of others files*/
 int set_PWM(int rpm);
 double PI_controller(double y, double r, double k, double Kp, double Ti);
 float simulate(int value); 
 int init_sim(char rpm);
-float ReadRPM(int rpm_desired);
+double ReadRPM(int time);
 void start_PWM(void);
 void init_Ports(void);
 
@@ -99,8 +99,8 @@ void led(double val){
     act_rpm = ReadRPM(cnt_time);
     cnt_time = 0;
     degree = ConvDegree(count);
-    printf("RPM: %d\n", act_rpm);                               // print
-    printf("Degree: %d\n", degree);
+    printf("RPM: %f\n", act_rpm);                               // print
+    printf("Degree: %f\n", degree);
     speed_real[aux_real+1] = 10;//act_rpm;
     aux_real++;
     IFS0bits.INT1IF = 0;                                        // Reset interrupt flag
@@ -166,7 +166,10 @@ void interface(void){
                 printf("| 1 - Read RPM |\n");
                 speed_real[aux_real] = act_rpm;
                 //x = floor(speed_real[aux_real]);              // to convert for integer with resolution 
-                printf("\n Instant %d rpm \n",x);  
+                printf("\n Instant %f rpm \n",speed_real[aux_real]);  
+                printf("\n Instant %f rpm \n",act_rpm);  
+                printf("\n Instant %d rpm \n",act_rpm);  
+
             }else if(user0 == '0'){                             // simulate values 
                 printf("| 1 - Read RPM |\n");
                 puts("\n Instant simulate speed  : ");
