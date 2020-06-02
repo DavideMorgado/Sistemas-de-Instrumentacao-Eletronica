@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "uart.h" 
 #define freq_PWM    30000
+
 double ConvDegree(int count){
     double degree = (count *360)/420;   
     if(degree >= 360){
@@ -16,9 +17,9 @@ double ConvDegree(int count){
     return degree;
 }
 
-double ReadRPM(int time){
+uint32_t ReadRPM(int time){
    // Variable declarations;
-    double rpm_real;
+    uint32_t rpm_real;
     rpm_real = (60 * freq_PWM) / (time * 420);     // count ---- x rpm
                                                    // 420   ---- 1 rpm
                                                     // * freq PWM

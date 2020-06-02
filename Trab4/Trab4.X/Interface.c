@@ -19,13 +19,14 @@ static double u_sim= 0;
 static int x,y;
 static int direction = 1;                 // initial diretion is positive 
 static int count = 0,user_rpm,degree,cnt_time;
-static double pos_angular,act_rpm;
+uint32_t act_rpm,pos_angular;
+
 /*declare other functions of others files*/
 int set_PWM(int rpm);
 double PI_controller(double y, double r, double k, double Kp, double Ti);
 float simulate(int value); 
 int init_sim(char rpm);
-double ReadRPM(int time);
+uint32_t ReadRPM(int time);
 void start_PWM(void);
 void init_Ports(void);
 
@@ -166,9 +167,6 @@ void interface(void){
                 printf("| 1 - Read RPM |\n");
                 speed_real[aux_real] = act_rpm;
                 printf("\n Instant %f rpm \n",speed_real[aux_real]);  
-                printf("\n Instant %f rpm \n",act_rpm);  
-                printf("\n Instant %d rpm \n",act_rpm);  
-
             }else if(user0 == '0'){                             // simulate values 
                 printf("| 1 - Read RPM |\n");
                 puts("\n Instant simulate speed  : ");
