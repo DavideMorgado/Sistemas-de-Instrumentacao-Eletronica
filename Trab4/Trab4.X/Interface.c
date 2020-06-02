@@ -88,7 +88,7 @@ void led(double val){
 }
 
  void __ISR (_EXTERNAL_1_VECTOR, IPL5SRS) ExtISR(void){          //check channel B
-    PORTDbits.RD0 = 1;                                           //force value = 1 to can test and present results
+    //PORTDbits.RD0 = 1;                                           //force value = 1 to can test and present results
     if(PORTDbits.RD0){
         direction = 1;
         count = count +1; 
