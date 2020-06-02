@@ -21,10 +21,10 @@ void config_PWM(void){
     OC3CONbits.ON = 1;           // Enable OC3
     
      // Set OC2 - chipKIT Pin 5
-    OC3CONbits.OCM = 6;          // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)
-    OC3CONbits.OCTSEL = 1;       // Timer 3 is clock source of OCM - 1 - select timer 3 / 0 - select timer 2
-   // OC3RS = 0;
-    OC3CONbits.ON = 1;           // Enable OC3
+    OC2CONbits.OCM = 6;          // OCM = 0b110 : OC1 in PWM mode,  (Output compare mode selected bits)
+    OC2CONbits.OCTSEL = 1;       // Timer 3 is clock source of OCM - 1 - select timer 3 / 0 - select timer 2
+   // OC2RS = 0;
+    OC2CONbits.ON = 1;           // Enable OC2
 }
 /*
 double transf_function(double val){ 

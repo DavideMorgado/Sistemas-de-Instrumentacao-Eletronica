@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "uart.h" 
-#define freq_PWM    25000
+#define freq_PWM    30000
 double ConvDegree(int count){
     double degree = (count *360)/420;   
     if(degree >= 360){

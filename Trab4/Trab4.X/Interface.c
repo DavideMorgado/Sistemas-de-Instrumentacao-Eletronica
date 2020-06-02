@@ -165,7 +165,6 @@ void interface(void){
             if(user0 == '1'){                                   // real values - increse rpm
                 printf("| 1 - Read RPM |\n");
                 speed_real[aux_real] = act_rpm;
-                //x = floor(speed_real[aux_real]);              // to convert for integer with resolution 
                 printf("\n Instant %f rpm \n",speed_real[aux_real]);  
                 printf("\n Instant %f rpm \n",act_rpm);  
                 printf("\n Instant %d rpm \n",act_rpm);  

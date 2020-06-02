@@ -22,11 +22,10 @@ double PI_controller(double y, double r, double k, double Kp, double Ti)
 {
     /*Variables*/
     double e;
-    /* Temperature in range [40,70] ºC*/
-    if( r < 40){
-        r = 40;
-    }else if ( r > 70){
-        r = 70;
+    if( r < 10){
+        r = 10;
+    }else if ( r > 50){
+        r = 50;
     }else{
     }
     e = r - y;                                  //
